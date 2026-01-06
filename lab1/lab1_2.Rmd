@@ -19,6 +19,8 @@ output:
 ## Your GitHub account  
 Since we will use GitHub for assignments and projects, you need to have a personal BIS 15L repository. If you followed the [setup instructions](https://jmledford3115.github.io/datascibiol/logistics/setup.html) then you should be ready to make a repository using the instructions below. Please [Email](mailto:bymoore@ucdavis.edu) your GitHub user name to Bry.  
 
+Don't forget to send a link to Bry!
+
 ## Make Your Own Repository  
 1. Go to [github.com](www.github.com) and login.  
 2. Create a new repository.  
