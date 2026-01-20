@@ -104,12 +104,32 @@ ggplot(data=msleep,
 ```
 
 **9. Is there a relationship between brain weight and body weight? Build a plot to support your answer.**
+I would say that there is a slight relationship. As body weight goes up, brain weight also goes up.
 ```{r}
+names(msleep)
+```
 
+```{r}
+ggplot(data=msleep,
+       mapping=aes(x=brainwt,y=bodywt))+
+     scale_x_log10()+
+  geom_point(mapping=aes(color=vore))+
+  geom_smooth(method=lm,se=T)+
+  labs(title="Body Weight vs. Brain Weight")
 ```
 
 
 **10. Build one plot of your choice that provides additional insight into the msleep dataset. Be sure to include appropriate labels and a title.**
+```{r}
+names(msleep)
+```
+```{r}
+ggplot(data=msleep,
+       mapping=aes(x=vore, y=awake))+
+  geom_boxplot()+
+  labs(title = "Amount of Time Spent Awake (hours) by Vore Type")
+```
+
 
 ## Knit and Upload
 Please knit your work as an .html file and upload to Canvas. Homework is due before the start of the next lab. No late work is accepted. Make sure to use the formatting conventions of RMarkdown to make your report neat and clean!  
