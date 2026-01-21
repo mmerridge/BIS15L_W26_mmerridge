@@ -74,13 +74,21 @@ homerange %>%
 ```
 
 **6. Which two species have the largest and smallest homerange sizes?**
+Tarandus has the largest and Hipoliti has the smallest homerange size
 ```{r}
-
+homerange %>% 
+  select(species, mean.hra.m2) %>% 
+  arrange(desc(mean.hra.m2)) %>% 
+  slice_head(n=1)
 ```
 
 ```{r}
-
+homerange %>% 
+  select(species, mean.hra.m2) %>% 
+  arrange(desc(mean.hra.m2)) %>% 
+  slice_tail(n=1)
 ```
+
 
 **7. Which carnivorous mammals have the largest homeranges?**
 ```{r}
