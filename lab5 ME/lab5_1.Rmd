@@ -55,10 +55,6 @@ We are only interested in species and body mass. We can use `select()` to extrac
 select(penguins, species, body_mass_g)
 ```
 
-```{r}
-penguins <- penguins
-```
-
 To add a range of columns use `start_col:end_col`.
 ```{r}
 select(penguins, species:flipper_length_mm)
@@ -124,7 +120,7 @@ glimpse(msleep)
 
 3. Make a new dataframe that only includes the variables `order`, `genus`, and `bodywt.`
 ```{r}
-select(msleep, "order", "genus", "bodywt")
+msleeps <- select(msleep, order, genus, bodywt)
 ```
 
 4. What if we are only interested in the numeric variables? Make a new dataframe that is restricted to numerics.
@@ -134,7 +130,7 @@ select(msleep, where(is.numeric))
 
 5. Make a dataframe that includes all variables except `name.`
 ```{r}
-select(msleep, !name)
+msleeper <- select(msleep, !"name")
 ```
 
 ## That's it! Let's take a break and then move on to part 2! 
