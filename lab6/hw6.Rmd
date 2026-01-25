@@ -50,46 +50,69 @@ gabon %>%
 **4. Use `mutate()` Change the variables `HuntCat`, `LandUse`, and `TransectID` to factors. Be sure to store the output as a new dataframe and use it for the remaining questions.**
 ```{r}
 new_better_name <- gabon %>% 
-  mutate(across(c("hunt_cat","land_use", "transect_id"), is.factor))
+  mutate(across(c("hunt_cat","land_use", "transect_id"), as.factor))
 ```
-
+```{r}
+names(new_better_name)
+```
 **5. Make a plot that shows the number of transects for each land use type.**
 ```{r}
-
+ggplot(data=new_better_name,
+       mapping=aes(x=land_use))+
+  geom_bar(mapping = aes(fill = land_use))+
+  labs(title = "Number of Transects In Each Land Use Type",
+       x="Land Use Type", y="Transects")
 ```
 
 ```{r}
-
+names(new_better_name)
 ```
 
 **6. How does vegetation richness compare among land use types?**
+Vegitation richness is more in park land use, followed by logging. 
 ```{r}
-
+ggplot(data=new_better_name,
+       mapping=aes(x=land_use, y=veg_rich))+
+  geom_boxplot(mapping = aes(fill = land_use))+
+  labs(title = "Vegitation Richness Arcross Land Use Type",
+       x="Land Use Type", y="Vegitation Richness")
 ```
 
 **7. For which land use type (national parks, logging, or neither) is average all species diversity the greatest?**
+The National Parks land use type's all species diversity average is the greatest. 
 ```{r}
-
+names(new_better_name)
 ```
 
 ```{r}
-
+summary(new_better_name)
 ```
 
 ```{r}
-
-```
-
-```{r}
-
+new_better_name %>% 
+  group_by(land_use) %>% 
+  summarise(
+    mean_all_species_diversity = mean(diversity_all_species, na.rm=TRUE)) %>% 
+      arrange(desc(mean_all_species_diversity))
 ```
 
 **8. Is there a relationship between vegetation richness and mammal species richness?**
+There is a slight positive relationship between vegetation richness and mammal species richness. 
 ```{r}
-
+names(new_better_name)
+```
+```{r}
+ggplot(data=new_better_name,
+       mapping=aes(x=veg_rich,y=rich_mammal_species))+
+    geom_point()+
+   geom_smooth(method=lm,se=T)+
+  labs(title="Vegetation Richness vs. Mammal Species Richness", x ="Vegitation Richness", y ="Mammal Species Richness")
 ```
 
 **9. Use `filter` to find all transects that have greater than 15 tree species or a breast height diameter between 50 and 60cm.  **
+```{r}
+names(new_better_name)
+```
 ```{r}
 
 ```
