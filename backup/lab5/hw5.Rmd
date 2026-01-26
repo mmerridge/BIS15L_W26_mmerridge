@@ -1,6 +1,6 @@
 ---
 title: "Homework 5"
-author: "Maison Erridge"
+author: "Your Name Here"
 date: "`r Sys.Date()`"
 output:
   html_document: 
@@ -23,122 +23,60 @@ Data: http://datadryad.org/resource/doi:10.5061/dryad.q5j65/1
 
 **1. Load the data into a new object called `homerange`.**
 ```{r}
-homerange <- read.csv("data/Tamburelloetal_HomeRangeDatabase.csv")
+
 ```
 
 **2. What is the structure of the `homerange` data? Does it have any NA's? Do a quick exploratory analysis of your choice below.**
-There are NA's in the homerange data
 ```{r}
-structure(homerange)
+
 ```
 
 ```{r}
-glimpse(homerange)
-```
-```{r}
-names(homerange)
+
 ```
 
 **3. Which animal groups are represented in the data? Make a plot that shows the number in each class.**
-There are Actinopterygii, Aves, Mammalia, and Reptiia
 ```{r}
-ggplot(data=homerange,
-       mapping=aes(x=class))+
-  geom_bar(mapping = aes(fill = class))+
-  labs(title = "Animal Groups Represented By Data")
+
 ```
 
 **4. Are there more carnivores or herbivores represented in the data? Make a plot that shows the number in each trophic guild.**
-There are more carnivores represented in the data.
 ```{r}
-names(homerange)
-```
-```{r}
-ggplot(data=homerange,
-       mapping=aes(x=trophic.guild))+
-  geom_bar(mapping = aes(fill = trophic.guild))+
-  labs(title = "Amount of Herbivores vs Carnivores")
-```
 
-```{r}
-names(homerange)
 ```
 
 **5. Which herbivorous mammals have homeranges greater than 1,000,000 m²? Show only the common name, order, mean homerange size, and mean body mass. Arrange the data in descending order by homerange size and show only the top 10 species.**
 ```{r}
-homerange %>% 
-  select(common.name, order, mean.hra.m2, mean.mass.g) %>% 
-  filter(mean.hra.m2>1000000) %>% 
-  arrange(desc(mean.hra.m2)) %>% 
-  slice_head(n=10)
+
 ```
 
 **6. Which two species have the largest and smallest homerange sizes?**
-Tarandus has the largest and Hipoliti has the smallest homerange size
 ```{r}
-homerange %>% 
-  select(species, mean.hra.m2) %>% 
-  arrange(desc(mean.hra.m2)) %>% 
-  slice_head(n=1)
+
 ```
 
 ```{r}
-homerange %>% 
-  select(species, mean.hra.m2) %>% 
-  arrange(desc(mean.hra.m2)) %>% 
-  slice_tail(n=1)
+
 ```
-```{r}
-names(homerange)
-```
+
 **7. Which carnivorous mammals have the largest homeranges?**
-Cheetah, Lepoard, Caracal, Wolverine, Cougar, etc.
 ```{r}
-homerange %>%
-   select(common.name, genus, species, mean.hra.m2, class, trophic.guild) %>% 
-   filter(class == "mammalia", trophic.guild == "carnivore") %>%
-  arrange(desc(mean.hra.m2))
-```
 
-```{r}
-names(homerange)
 ```
 
 **8. Is there a relationship between body mass and homerange size? Make a scatterplot to show this relationship. Be sure to include appropriate labels and a title.**
-Yes, as homerange size gets larger, so does body mass. 
 ```{r}
-ggplot(data=homerange,
-       mapping=aes(x=log10.mass,y=log10.hra))+
-    geom_point()+
-   geom_smooth(method=lm,se=T)+
-  labs(title="Body Mass (g) vs. Homerange Size", x ="Body Mass (log 10)", y ="Homerange Size (log 10)")
-```
 
-```{r}
-names(homerange)
 ```
 
 **9. Use filter to extract the data for only birds and mammals. Then make a plot that compares the homerange sizes of these two groups. Be sure to include appropriate labels and a title.**
 ```{r}
-homerange %>%
-  select(class, log10.hra) %>%
-  filter(class=="mammalia" | class=="aves") %>%
-  ggplot(aes(x=class, y=log10.hra)) +
-  geom_boxplot()+
-  labs(title="Homerange Size of Birds vs Mammals", x ="Class", y ="Homerange Size (log 10)")
-```
-```{r}
-names(homerange)
+
 ```
 
 **10. Do one additional exploratory analysis of your choice. Before writing the code, write the question you are trying to answer. The question should be biologically meaningful and appropriate for the data. It must include at least one `filter()`, `select()`, and `arrange()`.**
-Do reptiles or mammals hunt larger prey?
 ```{r}
-homerange %>% 
-  select(class, preymass) %>% 
-  filter(class=="mammalia" | class=="reptilia") %>% 
-  arrange(desc(preymass)) %>% 
-  slice_head(n=10)
+
 ```
 
 ## Knit and Upload

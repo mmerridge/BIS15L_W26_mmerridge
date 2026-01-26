@@ -10,9 +10,9 @@
 
 
 
-<meta name="date" content="2026-01-19" />
+<meta name="date" content="2026-01-22" />
 
-<title>Lab 5.2</title>
+<title>Lab 6.1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1502,8 +1502,8 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Lab 5.2</h1>
-<h4 class="date">2026-01-19</h4>
+<h1 class="title toc-ignore">Lab 6.1</h1>
+<h4 class="date">2026-01-22</h4>
 
 </div>
 
@@ -1511,13 +1511,15 @@ border-radius: 0px;
 <div id="learning-goals" class="section level2">
 <h2>Learning Goals</h2>
 <p><em>At the end of this exercise, you will be able to:</em><br />
-1. Use the <code>filter()</code> function of <code>dplyr</code> to
-extract observations of interest.<br />
-2. Use <code>filter()</code> on multiple conditions to extract
-observations of interest.<br />
-3. Use <code>arrange()</code> to sort data frames by specific
-variables.<br />
-4. Use pipes <code>%&gt;%</code> to connect multiple functions.</p>
+1. Use <code>distinct()</code> to find unique observations in
+rows.<br />
+2. Use <code>mutate()</code> to create new columns from existing
+columns.<br />
+3. Use <code>mutate()</code> with <code>across</code> and
+<code>where</code> to transform multiple columns that meet specific
+criteria. 4. Use <code>if_else()</code> to conditionally change values
+in a column. 5. Clean data using <code>janitor</code> and
+<code>mutate()</code>.</p>
 </div>
 <div id="load-the-tidyverse" class="section level2">
 <h2>Load the tidyverse</h2>
@@ -1532,6 +1534,13 @@ variables.<br />
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 ## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>library(&quot;janitor&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;janitor&#39;
+## 
+## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     chisq.test, fisher.test</code></pre>
 <pre class="r"><code>library(&quot;palmerpenguins&quot;) #load the palmerpenguins package</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;palmerpenguins&#39;
@@ -1539,6 +1548,7 @@ variables.<br />
 ## The following objects are masked from &#39;package:datasets&#39;:
 ## 
 ##     penguins, penguins_raw</code></pre>
+<pre class="r"><code>options(scipen=999) #turn off scientific notation</code></pre>
 </div>
 <div id="palmerpenguins" class="section level2">
 <h2>Palmerpenguins</h2>
@@ -1547,108 +1557,116 @@ Ecological sexual dimorphism and environmental variability within a
 community of Antarctic penguins (genus <em>Pygoscelis</em>). PLoS ONE
 9(3):e90081. <a href="https://doi.org/10.1371/journal.pone.0090081" class="uri">https://doi.org/10.1371/journal.pone.0090081</a></p>
 </div>
-<div id="review" class="section level2">
-<h2>Review</h2>
-<p>In the previous lab, we used <code>select()</code> to extract columns
-of interest from a data frame. This helps us focus our attention on the
-variables relevant to our question. However, it doesn’t allow us to
-extract information in rows. The <code>filter()</code> function allows
-us to extract data in rows that meet specific criteria.</p>
+<div id="review-practice" class="section level2">
+<h2>Review &amp; Practice</h2>
+<p>Recall that the the verbs <code>select()</code> and
+<code>filter()</code> are used to extract columns and rows from a
+dataframe. We use the pipe operator <code>%&gt;%</code> to connect
+multiple functions together.</p>
+<ol style="list-style-type: decimal">
+<li><p>Select species, island, and body mass from the penguins data.
+Arrange results by body mass.</p></li>
+<li><p>Filter the penguins data to only include observations from Biscoe
+and Dream islands.</p></li>
+<li><p>Make a plot that shows the relationship between body mass and
+flipper length. How does this compare among different species?</p></li>
+</ol>
 </div>
-<div id="filter" class="section level2">
-<h2><code>filter()</code></h2>
-<p>Unlike <code>select()</code>, <code>filter()</code> allows us to
-extract data that meet specific criteria within a row. Let’s say that we
-are interested only in the Adelie penguins from the
-<code>penguins</code> data frame. We can use <code>filter()</code> to
-extract these observations.</p>
-<p>Similarly, if we are only interested in penguins with a body mass
-greater than or equal to 5500g we can use <code>filter()</code> to
-extract these observations.</p>
-<ul>
-<li><code>filter()</code> allows all of the expected operators;
-i.e. &gt;, &gt;=, &lt;, &lt;=, != (not equal), and == (equal).</li>
-</ul>
-<p>Using the <code>!</code> operator allows for the exclusion of
-specific observations.</p>
+<div id="distinct" class="section level2">
+<h2><code>distinct()</code></h2>
+<p><code>distinct()</code> looks for all unique observations in rows.
+This is a little tricky because it can look like it is working
+column-wise, but it is actually working row-wise.</p>
+<p>One helpful approach to new data is to find any duplicated rows. If
+we first look at the dimensions of the penguins data, we see it has 344
+rows and 8 columns.</p>
+<p>Using <code>distinct()</code> across all rows, we see there are no
+duplicates. This means every row contains unique observations across all
+variables.</p>
+<p>But if we only look at species, we can see that there are only 3
+unique species in the data.</p>
+<p>What if we want to know which islands each species occurs on?</p>
 </div>
-<div id="using-filter-with-multiple-observations" class="section level2">
-<h2>Using <code>filter()</code> with multiple observations</h2>
-<p>The <code>%in%</code> <a href="https://www.tutorialspoint.com/r/r_operators.htm">operator</a>
-determines whether or not a value is part of a vector.</p>
-<p>Alternatively, you can use <code>between</code> if you are looking
-for a range of specific values.</p>
-<p>How would you use <code>%in%</code> to get the same result?</p>
-<p>You can also extract observations “near” a certain value but you need
-to specify a tolerance.</p>
+<div id="mutate" class="section level2">
+<h2><code>mutate()</code></h2>
+<p><code>mutate()</code> is another verb that acts on columns. It allows
+us to create new columns from existing columns in a data frame. When we
+use <code>mutate()</code>, the columns are added to the end of the
+dataframe by default. Let’s create a new column that converts body mass
+from grams to kilograms.</p>
+</div>
+<div id="mutate-and-across" class="section level2">
+<h2><code>mutate()</code> and <code>across()</code></h2>
+<p>We use <code>across()</code> within <code>mutate()</code> to apply a
+function to multiple columns. This is especially helpful when cleaning
+data. For example, let’s say we want to convert all columns that end
+with <code>mm</code> to centimeters. We can use <code>across()</code> to
+do this.</p>
+<p>What does the <code>~./10</code> mean? The <code>~</code> indicates
+that what follows is a formula (lambda function). The <code>.</code>
+represents the current column being processed. So, <code>./10</code>
+means “take the current column and divide it by 10”. This operation is
+applied to all columns that end with <code>mm</code>.</p>
+</div>
+<div id="cleaning-data" class="section level2">
+<h2>Cleaning Data</h2>
+<p>Cleaning raw data is an essential, but tedious step in data analysis.
+It’s impossible to predict every scenario that you will come across, but
+there are some common issues that we can learn to address.</p>
+<p>We already learned how to use <code>rename()</code> to change column
+names. We also learned how to rename columns from within
+<code>select()</code>. But, this can be very inefficient if we have a
+large dataset.</p>
+<p>Let’s have a look at some new data focused on mammal lifehistories.
+The data are from: S. K. Morgan Ernest. 2003. Life history
+characteristics of placental non-volant mammals. Ecology 84:3402. <a href="http://esapubs.org/archive/ecol/E084/093/">link</a></p>
+<p>What is the structure of the data? Are there any NA’s or other
+issues?</p>
+<p>One thing to notice is the column names are inconsistent. This is
+going to cause problems for us down the line. We could rename each
+column, one at a time, using <code>rename()</code>, but that would be
+tedious. Instead, we can use the <code>clean_names()</code> function
+from the <code>janitor</code> package to fix all of the column names at
+once.</p>
+<p>Notice that <code>clean_names()</code> has converted all column names
+to lowercase and replaced spaces with underscores. But, no adjustments
+were made to the data itself. What if we want to change observations
+from upper case to lower case?</p>
+<p>This will change all columns to lower case. But, notice what happens
+to numeric columns.</p>
+<p>For this reason, it might be better to use <code>where</code> so we
+can specify only character columns.</p>
+</div>
+<div id="if_else" class="section level2">
+<h2><code>if_else()</code></h2>
+<p>We briefly introduce <code>if_else()</code> here because it allows us
+to use <code>mutate()</code> but not have the entire column affected in
+the same way. With <code>ifelse()</code>, you first specify a logical
+statement, afterwards what needs to happen if the statement returns
+<code>TRUE</code>, and lastly what needs to happen if it’s
+<code>FALSE</code>.</p>
+<p>Have a look at the data from mammals below. Notice that the values
+for newborn include <code>-999.00</code>. This is sometimes used as a
+placeholder for NA (but, is a really bad idea). We can use
+<code>if_else()</code> to replace <code>-999.00</code> with
+<code>NA</code>.</p>
 </div>
 <div id="practice" class="section level2">
 <h2>Practice</h2>
-<p>The data are from: Gaeta J., G. Sass, S. Carpenter. 2012.
-Biocomplexity at North Temperate Lakes LTER: Coordinated Field Studies:
-Large Mouth Bass Growth 2006. Environmental Data Initiative. <a href="https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-ntl&amp;identifier=267">link</a></p>
 <ol style="list-style-type: decimal">
-<li><p>Load the data</p></li>
-<li><p>Filter the <code>fish</code> data to include the samples from
-lake “BO”.</p></li>
-<li><p>Filter the data to include all lakes except “AR”.</p></li>
-<li><p>Filter the fish data to include all fish with a scalelength
-within 0.25 of 8.</p></li>
-<li><p>Filter the fish data to include fish with a scalelength between 2
-and 4.</p></li>
+<li><p>Following the example above, convert all -999 values in the
+mammals dataframe to NA.</p></li>
+<li><p>In the mammals data, make a new column <code>mass_kg</code> that
+that converts mass from grams to kilograms. Select the columns genus,
+species, mass, and mass_kg, and arrange the data by mass_kg in
+descending order. What is the common name for the species with the
+highest mass?</p></li>
+<li><p>What is the relationship between gestation and newborn
+mass?</p></li>
+<li><p>Which mammal has the longest life span in years?</p></li>
+<li><p>Do larger mammals live longer?</p></li>
 </ol>
-</div>
-<div id="using-filter-on-multiple-conditions" class="section level2">
-<h2>Using <code>filter()</code> on multiple conditions</h2>
-<p>You can also use <code>filter()</code> to extract data based on
-multiple conditions. Below we extract the Chinstrap penguins that have a
-body mass greater than 4500g.</p>
-<p>Notice that the <code>|</code> operator generates a different result.
-Why?</p>
-<p>Rules:<br />
-+ <code>filter(condition1, condition2)</code> will return rows where
-both conditions are met. By default the , means &amp;.<br />
-+ <code>filter(condition1, !condition2)</code> will return all rows
-where condition one is true but condition 2 is not.<br />
-+ <code>filter(condition1 | condition2)</code> will return rows where
-condition 1 or condition 2 is met.</p>
-<p>In this case, we filter out the penguins with a body mass over 5000g
-and a bill length over 50mm or a bill depth over 18mm.</p>
-</div>
-<div id="pipes" class="section level2">
-<h2>Pipes <code>%&gt;%</code></h2>
-<p>In order to start combining <code>select()</code>,
-<code>filter()</code>, and other functions efficiently, we need to learn
-pipes. Pipes feed the output from one function into the input of another
-function.</p>
-<p>Let’s say we are only interested in the body mass of Gentoo penguins.
-We can use pipes to first select the species and body mass columns then
-filter that output only for Gentoo penguins. Notice that we only need to
-call the data one time.</p>
-<p>We can sort the output of <code>filter()</code> using the
-<code>arrange()</code> function. Here we filter for Gentoo penguins and
-then sort them by body mass in ascending order.</p>
-<p>To sort in descending order, wrap the variable name in
-<code>desc()</code>.</p>
-</div>
-<div id="practice-1" class="section level2">
-<h2>Practice</h2>
-<p>Let’s use the fish data again to keep things simple.</p>
-<ol style="list-style-type: decimal">
-<li><p>We are interested in the radii length and scalelength of fish
-with the id <code>300</code>. Extract this information from the
-<code>fish</code> data. Please sort the data by radii length.</p></li>
-<li><p>We are interested in the fish from the lakes “AL” and “AR” with a
-radii length between 2 and 4. Extract this information from the
-<code>fish</code> data. Please sort the data in descending order by
-radii length.</p></li>
-</ol>
-</div>
-<div id="wrap-up" class="section level2">
-<h2>Wrap-up</h2>
-<p>Please review the learning goals and be sure to use the code here as
-a reference when completing the homework.<br />
-–&gt;<a href="https://jmledford3115.github.io/datascibiol/">Home</a></p>
+<p>–&gt;<a href="https://jmledford3115.github.io/datascibiol/">Home</a></p>
 </div>
 
 
