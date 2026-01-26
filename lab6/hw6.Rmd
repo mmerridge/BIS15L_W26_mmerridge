@@ -114,16 +114,18 @@ ggplot(data=new_better_name,
 names(new_better_name)
 ```
 ```{r}
-
+new_better_name %>% 
+  select(ra_birds, veg_dbh, transect_id) %>% 
+  filter(ra_birds>15 | (veg_dbh>50 | veg_dbh<60))
 ```
 
-```{r}
-
-```
 
 **10.Which transects and land use types have more than 10 tree species and 10 mammal species? Use `arrange()` to sort by the number of tree species.**
+Transects 24, 1, 2, 6, and 14 have more than 10 tree species and 10 mammal species. 
 ```{r}
-
+new_better_name %>% 
+  filter(rich_bird_species>10, rich_mammal_species>10) %>% 
+  arrange(desc(rich_bird_species))
 ```
 
 ## Knit and Upload
