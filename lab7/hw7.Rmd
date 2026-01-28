@@ -113,21 +113,44 @@ ggplot(data=elephants_factors,
 ```
 
 **11. The authors argue that because poachers preferentially target elephants with large tusks, this has resulted in a decrease in average tusk length. Is this supported by the data? Show your code and calculations below.**  
-\
-\
-\
-\
-\
+This is supported by the data - the average tusk length in the 60s was 96.9cm, and in the 2000s it was 77.2cm. 
+```{r}
+names(elephants)
+```
+
+```{r}
+elephants_factors %>% 
+  filter(years_of_sample_collection=="1966-68") %>% 
+  summarize(mean_tusk_length_60=mean(tusk_length_in_cm, na.rm=T))
+```
+```{r}
+elephants_factors %>% 
+  filter(years_of_sample_collection=="2005-13") %>% 
+  summarize(mean_tusk_length_20=mean(tusk_length_in_cm, na.rm=T))
+```
 
 **12. Male elephants reach effective sexual maturity at 25 years while females are sexually mature at 12 years. Make a new dataframe that extracts only the males and females at sexual maturity. Then, make a plot that shows the range of tusk length between the two sample periods for these mature elephants.**   
-\
-\
-\
-\
-\
+
+```{r}
+names(elephants)
+```
+
+```{r}
+elephants_mature <- elephants_factors %>% 
+  filter((sex=="m" & estimated_age_years>=25)|(sex=="f" & estimated_age_years>=12))
+```
+
+```{r}
+elephants_mature %>% 
+  ggplot(mapping=aes(x=years_of_sample_collection, y=tusk_length_in_cm))+
+  geom_boxplot() +
+  labs(title="Tusk Length for Mature Elephants",
+       x="Years of Sample Collection",
+       y="Tusk Length (cm)")
+```
 
 ## Submit the Homework
-1. Save your work and knit the .rmd file.  
+1.. Save your work and knit the .rmd file.  
 2. Open the .html file and "print" it to a .pdf file in Google Chrome (not Safari).    
 3. Go to the class Canvas page and open Gradescope.  
 4. Submit your .pdf file to the homework assignment- be sure to assign the pages to the correct questions.  
