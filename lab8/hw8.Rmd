@@ -15,7 +15,7 @@ Answer the following questions and/or complete the exercises in RMarkdown. Pleas
 ```{r message=FALSE, warning=FALSE}
 library("tidyverse")
 library("janitor")
-library("naniar")
+#library("naniar")
 options(scipen = 999)
 ```
 
@@ -29,47 +29,96 @@ fisheries_clean <- read_csv("data/fisheries_clean.csv")
 
 1. Explore the data. What are the names of the variables, what are the dimensions, are there any NA's, what are the classes of the variables, etc.? You may use the functions that you prefer.
 ```{r}
-
+names(fisheries_clean)
+```
+```{r}
+glimpse(fisheries_clean)
+```
+```{r}
+structure(fisheries_clean)
 ```
 
 2. Convert the following variables to factors: `period`, `continent`, `geo_region`, `country`, `scientific_name`, `common_name`, `taxonomic_code`, and `status`.
 ```{r}
-
+fish_factors <- fisheries_clean %>% 
+  mutate(across(c("period", "continent", "geo_region","country","scientific_name","common_name","taxonomic_code","status"), as.factor))
 ```
 
-3. Are there any missing values in the data? If so, which variables contain missing values and how many are missing for each variable?
+##3. SKIP Are there any missing values in the data? If so, which variables contain missing values and how many are missing for each variable?
 ```{r}
 
 ```
 
 4. How many countries are represented in the data?
+249 countries
 ```{r}
-
+fish_factors %>% 
+  count(country)
 ```
 
 5. The variables `common_name` and `taxonomic_code` both refer to species. How many unique species are represented in the data based on each of these variables? Are the numbers the same or different?
+There are less common names than taxonomic codes - weird
 ```{r}
+names(fish_factors)
+```
+```{r}
+fish_factors %>% 
+  summarize(n_species_common_name=n_distinct(common_name))
+```
 
+```{r}
+fish_factors %>% 
+  summarize(n_species_taxonomic_code=n_distinct(taxonomic_code))
 ```
 
 6. In 2023, what were the top five countries that had the highest overall catch?
+China, Indonesia, India, Russian Federation, and the United States of America
 ```{r}
-
+names(fish_factors)
+```
+```{r}
+fish_factors %>% 
+  filter(period==2023) %>% 
+  group_by(country) %>% 
+  summarize(total_catch=sum(catch, na.rm=T)) %>% 
+  arrange(desc(total_catch)) %>% 
+  slice_head(n=5)
 ```
 
-7. In 2023, what were the top 10 most caught species? To keep things simple, assume `common_name` is sufficient to identify species. What does `NEI` stand for in some of the common names? How might this be concerning from a fisheries management perspective?
-```{r}
 
+
+7. In 2023, what were the top 10 most caught species? To keep things simple, assume `common_name` is sufficient to identify species. What does `NEI` stand for in some of the common names? How might this be concerning from a fisheries management perspective?
+Marine fishes NEI, Freshwater fishes NEI, Alaska polluck, Skipjack tuna, Anchoveta, Blue whiting, pacific sardine, Yellowfin tuna, Atlatic herring, Scads NEI. NEI stands for "not elsewhere included" and is bad from a fisheries management perspective since it masks true data and can make it hard for sustainable management.
+```{r}
+fish_factors %>% 
+  filter(period==2023) %>% 
+  group_by(common_name) %>% 
+  summarize(total_catch=sum(catch, na.rm=T)) %>% 
+  arrange(desc(total_catch)) %>% 
+  slice_head(n=10)
 ```
 
 8. For the species that was caught the most above (not NEI), which country had the highest catch in 2023?
+Russian Federation
 ```{r}
-
+fish_factors %>% 
+  filter(period==2023,common_name=="Alaska pollock(=Walleye poll.)") %>% 
+  group_by(country) %>% 
+  summarize(total_catch=sum(catch, na.rm=T)) %>% 
+  arrange(desc(total_catch)) %>% 
+  slice_head(n=1)
 ```
 
 9. How has fishing of this species changed over the last decade (2013-2023)? Create a  plot showing total catch by year for this species.
+DO STILLLL
 ```{r}
-
+fish_factors %>% 
+  filter(common_name=="Alaska pollock(=Walleye poll.)") %>% 
+  summarize(total_catch=sum(catch, na.rm=T)) %>% 
+  ggplot(mapping=aes(x=period,y=total_catch))+
+  geom_point(mapping=aes(color=common_name))+
+  geom_smooth(method=lm,se=T)+
+  labs(title="Title",x="x axis",y="y axis")
 ```
 
 10. Perform one exploratory analysis of your choice. Make sure to clearly state the question you are asking before writing any code.
