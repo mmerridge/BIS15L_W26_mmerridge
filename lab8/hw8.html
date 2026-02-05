@@ -9,9 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Your Name Here" />
+<meta name="author" content="Maison Erridge" />
 
-<meta name="date" content="2026-02-01" />
+<meta name="date" content="2026-02-05" />
 
 <title>Homework 8</title>
 
@@ -375,8 +375,8 @@ display: none;
 
 
 <h1 class="title toc-ignore">Homework 8</h1>
-<h4 class="author">Your Name Here</h4>
-<h4 class="date">2026-02-01</h4>
+<h4 class="author">Maison Erridge</h4>
+<h4 class="date">2026-02-05</h4>
 
 </div>
 
@@ -393,7 +393,7 @@ code chunks to run.</p>
 <h2>Load the libraries</h2>
 <pre class="r"><code>library(&quot;tidyverse&quot;)
 library(&quot;janitor&quot;)
-library(&quot;naniar&quot;)
+#library(&quot;naniar&quot;)
 options(scipen = 999)</code></pre>
 </div>
 <div id="about-the-data" class="section level2">
@@ -406,37 +406,211 @@ script.</p>
 <code>fisheries_clean</code>.</p>
 <pre class="r"><code>fisheries_clean &lt;- read_csv(&quot;data/fisheries_clean.csv&quot;)</code></pre>
 <ol style="list-style-type: decimal">
-<li><p>Explore the data. What are the names of the variables, what are
-the dimensions, are there any NA’s, what are the classes of the
-variables, etc.? You may use the functions that you prefer.</p></li>
-<li><p>Convert the following variables to factors: <code>period</code>,
+<li>Explore the data. What are the names of the variables, what are the
+dimensions, are there any NA’s, what are the classes of the variables,
+etc.? You may use the functions that you prefer.</li>
+</ol>
+<pre class="r"><code>names(fisheries_clean)</code></pre>
+<pre><code>## [1] &quot;period&quot;          &quot;continent&quot;       &quot;geo_region&quot;      &quot;country&quot;        
+## [5] &quot;scientific_name&quot; &quot;common_name&quot;     &quot;taxonomic_code&quot;  &quot;catch&quot;          
+## [9] &quot;status&quot;</code></pre>
+<pre class="r"><code>glimpse(fisheries_clean)</code></pre>
+<pre><code>## Rows: 1,055,015
+## Columns: 9
+## $ period          &lt;dbl&gt; 1950, 1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, …
+## $ continent       &lt;chr&gt; &quot;Asia&quot;, &quot;Asia&quot;, &quot;Asia&quot;, &quot;Asia&quot;, &quot;Asia&quot;, &quot;Asia&quot;, &quot;Asia&quot;…
+## $ geo_region      &lt;chr&gt; &quot;Southern Asia&quot;, &quot;Southern Asia&quot;, &quot;Southern Asia&quot;, &quot;So…
+## $ country         &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanis…
+## $ scientific_name &lt;chr&gt; &quot;Osteichthyes&quot;, &quot;Osteichthyes&quot;, &quot;Osteichthyes&quot;, &quot;Ostei…
+## $ common_name     &lt;chr&gt; &quot;Freshwater fishes NEI&quot;, &quot;Freshwater fishes NEI&quot;, &quot;Fre…
+## $ taxonomic_code  &lt;chr&gt; &quot;1990XXXXXXXX106&quot;, &quot;1990XXXXXXXX106&quot;, &quot;1990XXXXXXXX106…
+## $ catch           &lt;dbl&gt; 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200,…
+## $ status          &lt;chr&gt; &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;,…</code></pre>
+<pre class="r"><code>structure(fisheries_clean)</code></pre>
+<pre><code>## # A tibble: 1,055,015 × 9
+##    period continent geo_region    country     scientific_name common_name       
+##     &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;       &lt;chr&gt;           &lt;chr&gt;             
+##  1   1950 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  2   1951 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  3   1952 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  4   1953 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  5   1954 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  6   1955 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  7   1956 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  8   1957 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+##  9   1958 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+## 10   1959 Asia      Southern Asia Afghanistan Osteichthyes    Freshwater fishes…
+## # ℹ 1,055,005 more rows
+## # ℹ 3 more variables: taxonomic_code &lt;chr&gt;, catch &lt;dbl&gt;, status &lt;chr&gt;</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Convert the following variables to factors: <code>period</code>,
 <code>continent</code>, <code>geo_region</code>, <code>country</code>,
 <code>scientific_name</code>, <code>common_name</code>,
-<code>taxonomic_code</code>, and <code>status</code>.</p></li>
-<li><p>Are there any missing values in the data? If so, which variables
-contain missing values and how many are missing for each
-variable?</p></li>
-<li><p>How many countries are represented in the data?</p></li>
-<li><p>The variables <code>common_name</code> and
+<code>taxonomic_code</code>, and <code>status</code>.</li>
+</ol>
+<pre class="r"><code>fish_factors &lt;- fisheries_clean %&gt;% 
+  mutate(across(c(&quot;period&quot;, &quot;continent&quot;, &quot;geo_region&quot;,&quot;country&quot;,&quot;scientific_name&quot;,&quot;common_name&quot;,&quot;taxonomic_code&quot;,&quot;status&quot;), as.factor))</code></pre>
+<p>##3. SKIP Are there any missing values in the data? If so, which
+variables contain missing values and how many are missing for each
+variable?</p>
+<ol start="4" style="list-style-type: decimal">
+<li>How many countries are represented in the data? 249 countries</li>
+</ol>
+<pre class="r"><code>fish_factors %&gt;% 
+  count(country)</code></pre>
+<pre><code>## # A tibble: 249 × 2
+##    country                 n
+##    &lt;fct&gt;               &lt;int&gt;
+##  1 Afghanistan            74
+##  2 Albania              2836
+##  3 Algeria              2766
+##  4 American Samoa       2565
+##  5 Andorra                54
+##  6 Angola               4831
+##  7 Anguilla              238
+##  8 Antigua and Barbuda   887
+##  9 Argentina            9246
+## 10 Armenia               199
+## # ℹ 239 more rows</code></pre>
+<ol start="5" style="list-style-type: decimal">
+<li>The variables <code>common_name</code> and
 <code>taxonomic_code</code> both refer to species. How many unique
 species are represented in the data based on each of these variables?
-Are the numbers the same or different?</p></li>
-<li><p>In 2023, what were the top five countries that had the highest
-overall catch?</p></li>
-<li><p>In 2023, what were the top 10 most caught species? To keep things
+Are the numbers the same or different? There are less common names than
+taxonomic codes - weird</li>
+</ol>
+<pre class="r"><code>names(fish_factors)</code></pre>
+<pre><code>## [1] &quot;period&quot;          &quot;continent&quot;       &quot;geo_region&quot;      &quot;country&quot;        
+## [5] &quot;scientific_name&quot; &quot;common_name&quot;     &quot;taxonomic_code&quot;  &quot;catch&quot;          
+## [9] &quot;status&quot;</code></pre>
+<pre class="r"><code>fish_factors %&gt;% 
+  summarize(n_species_common_name=n_distinct(common_name))</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   n_species_common_name
+##                   &lt;int&gt;
+## 1                  3390</code></pre>
+<pre class="r"><code>fish_factors %&gt;% 
+  summarize(n_species_taxonomic_code=n_distinct(taxonomic_code))</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   n_species_taxonomic_code
+##                      &lt;int&gt;
+## 1                     3722</code></pre>
+<ol start="6" style="list-style-type: decimal">
+<li>In 2023, what were the top five countries that had the highest
+overall catch? China, Indonesia, India, Russian Federation, and the
+United States of America</li>
+</ol>
+<pre class="r"><code>names(fish_factors)</code></pre>
+<pre><code>## [1] &quot;period&quot;          &quot;continent&quot;       &quot;geo_region&quot;      &quot;country&quot;        
+## [5] &quot;scientific_name&quot; &quot;common_name&quot;     &quot;taxonomic_code&quot;  &quot;catch&quot;          
+## [9] &quot;status&quot;</code></pre>
+<pre class="r"><code>fish_factors %&gt;% 
+  filter(period==2023) %&gt;% 
+  group_by(country) %&gt;% 
+  summarize(total_catch=sum(catch, na.rm=T)) %&gt;% 
+  arrange(desc(total_catch)) %&gt;% 
+  slice_head(n=5)</code></pre>
+<pre><code>## # A tibble: 5 × 2
+##   country                  total_catch
+##   &lt;fct&gt;                          &lt;dbl&gt;
+## 1 China                      13424705.
+## 2 Indonesia                   7820833.
+## 3 India                       6177985.
+## 4 Russian Federation          5398032 
+## 5 United States of America    4623694</code></pre>
+<ol start="7" style="list-style-type: decimal">
+<li>In 2023, what were the top 10 most caught species? To keep things
 simple, assume <code>common_name</code> is sufficient to identify
 species. What does <code>NEI</code> stand for in some of the common
 names? How might this be concerning from a fisheries management
-perspective?</p></li>
-<li><p>For the species that was caught the most above (not NEI), which
-country had the highest catch in 2023?</p></li>
-<li><p>How has fishing of this species changed over the last decade
-(2013-2023)? Create a plot showing total catch by year for this
-species.</p></li>
-<li><p>Perform one exploratory analysis of your choice. Make sure to
-clearly state the question you are asking before writing any
-code.</p></li>
+perspective? Marine fishes NEI, Freshwater fishes NEI, Alaska polluck,
+Skipjack tuna, Anchoveta, Blue whiting, pacific sardine, Yellowfin tuna,
+Atlatic herring, Scads NEI. NEI stands for “not elsewhere included” and
+is bad from a fisheries management perspective since it masks true data
+and can make it hard for sustainable management.</li>
 </ol>
+<pre class="r"><code>fish_factors %&gt;% 
+  filter(period==2023) %&gt;% 
+  group_by(common_name) %&gt;% 
+  summarize(total_catch=sum(catch, na.rm=T)) %&gt;% 
+  arrange(desc(total_catch)) %&gt;% 
+  slice_head(n=10)</code></pre>
+<pre><code>## # A tibble: 10 × 2
+##    common_name                    total_catch
+##    &lt;fct&gt;                                &lt;dbl&gt;
+##  1 Marine fishes NEI                 8553907.
+##  2 Freshwater fishes NEI             5880104.
+##  3 Alaska pollock(=Walleye poll.)    3543411.
+##  4 Skipjack tuna                     2954736.
+##  5 Anchoveta(=Peruvian anchovy)      2415709.
+##  6 Blue whiting(=Poutassou)          1739484.
+##  7 Pacific sardine                   1678237.
+##  8 Yellowfin tuna                    1601369.
+##  9 Atlantic herring                  1432807.
+## 10 Scads NEI                         1344190.</code></pre>
+<ol start="8" style="list-style-type: decimal">
+<li>For the species that was caught the most above (not NEI), which
+country had the highest catch in 2023? Russian Federation</li>
+</ol>
+<pre class="r"><code>fish_factors %&gt;% 
+  filter(period==2023,common_name==&quot;Alaska pollock(=Walleye poll.)&quot;) %&gt;% 
+  group_by(country) %&gt;% 
+  summarize(total_catch=sum(catch, na.rm=T)) %&gt;% 
+  arrange(desc(total_catch)) %&gt;% 
+  slice_head(n=1)</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##   country            total_catch
+##   &lt;fct&gt;                    &lt;dbl&gt;
+## 1 Russian Federation     1893924</code></pre>
+<ol start="9" style="list-style-type: decimal">
+<li>How has fishing of this species changed over the last decade
+(2013-2023)? Create a plot showing total catch by year for this species.
+it wouldnt load so i commented it</li>
+</ol>
+<pre class="r"><code>names(fish_factors)</code></pre>
+<pre><code>## [1] &quot;period&quot;          &quot;continent&quot;       &quot;geo_region&quot;      &quot;country&quot;        
+## [5] &quot;scientific_name&quot; &quot;common_name&quot;     &quot;taxonomic_code&quot;  &quot;catch&quot;          
+## [9] &quot;status&quot;</code></pre>
+<pre class="r"><code>#fish_factors %&gt;% 
+#  group_by(common_name, period) %&gt;% 
+#  filter(common_name==&quot;Alaska pollock(=Walleye poll.)&quot;,(period&lt;2023 | period&gt;2013)) %&gt;% 
+#  summarize(total_catch=sum(catch, na.rm=T)) %&gt;% 
+#  ggplot(aes(x=period,y=total_catch))+
+#  geom_point()+
+#  geom_smooth(method=lm,se=T)+
+#  labs(title=&quot;Title&quot;,x=&quot;Year&quot;,y=&quot;Total Catch&quot;)</code></pre>
+<ol start="10" style="list-style-type: decimal">
+<li>Perform one exploratory analysis of your choice. Make sure to
+clearly state the question you are asking before writing any code. What
+is the mean, median, and standard devision for each catch?</li>
+</ol>
+<pre class="r"><code>names(fish_factors)</code></pre>
+<pre><code>## [1] &quot;period&quot;          &quot;continent&quot;       &quot;geo_region&quot;      &quot;country&quot;        
+## [5] &quot;scientific_name&quot; &quot;common_name&quot;     &quot;taxonomic_code&quot;  &quot;catch&quot;          
+## [9] &quot;status&quot;</code></pre>
+<pre class="r"><code>fish_factors %&gt;% 
+  group_by(common_name, catch) %&gt;% 
+  summarize(mean_catch=mean(catch, na.rm=T),
+            median_catch=median(catch, na.rm=T),
+            sd_catch=sd(catch, na.rm=T),
+            n=n())</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;common_name&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre><code>## # A tibble: 373,220 × 6
+## # Groups:   common_name [3,390]
+##    common_name catch mean_catch median_catch sd_catch     n
+##    &lt;fct&gt;       &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;
+##  1 Aba          100        100          100        NA     1
+##  2 Aba          102        102          102        NA     1
+##  3 Aba          120        120          120        NA     1
+##  4 Aba          126        126          126        NA     1
+##  5 Aba          134        134          134        NA     1
+##  6 Aba          148        148          148        NA     1
+##  7 Aba          176        176          176        NA     1
+##  8 Aba          190        190          190        NA     1
+##  9 Aba          204        204          204        NA     1
+## 10 Aba          210.       210.         210.       NA     1
+## # ℹ 373,210 more rows</code></pre>
 </div>
 <div id="knit-and-upload" class="section level2">
 <h2>Knit and Upload</h2>
