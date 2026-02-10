@@ -37,9 +37,6 @@ sydney
 
 2. Are these data "tidy" per the definitions of the tidyverse? How do you know? Are they in wide or long format?
 The data is tidy because each variable has its own colum, each obsevation has its own row, and each value has its own cell. It is in long format.
-```{r}
-
-```
 
 3. We are only interested in the variables site, date, and enterococci_cfu_100ml. Make a new object focused on these variables only. Name the object `sydneybeaches_long`
 ```{r}
@@ -74,12 +71,10 @@ sydneybeaches_long %>%
 
 
 8. Make the output from question 7 easier to read by pivoting it to wide format.
+My code is running but its not letting me knit so im commenting
 ```{r}
-avg_enterococci_by_year_wide <- avg_enterococci_by_year %>%
-  pivot_wider(names_from = year,values_from = avg_enterococci_cfu_100ml)
-```
-```{r}
-avg_enterococci_by_year_wide
+#avg_enterococci_by_year_wide <- avg_enterococci_by_year %>%
+#  pivot_wider(names_from = year,values_from = avg_enterococci_cfu_100ml)
 ```
 
 
