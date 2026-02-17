@@ -57,48 +57,141 @@ gapminder %>%
 
 3. Which five countries have had the largest absolute population growth between 1925-2025? Show this as a table.
 #population of 2025-1925 for every country, mutate
+India, China, Indonesia, Pakistan, USA
 ```{r}
-
+top_5 <- gapminder %>% 
+  filter(year %in% c(1925,2025)) %>% 
+  select(country, year, pop) %>% 
+  pivot_wider(names_from = year, values_from = pop) %>% 
+  mutate(growth=`2025`-`1925`) %>% 
+  arrange(desc(growth)) %>% 
+  slice_head(n=5)
 ```
+
+```{r}
+top_5
+```
+
 
 4. Make a plot that shows population growth over time for the top country you found in question #3.
 ```{r}
-
+gapminder %>%
+  filter(country == "India") %>%
+  ggplot(aes(x = year, y = pop)) +
+  geom_line(color = "blue") +
+  labs(title = "Population Growth Over Time - India",
+    x = "Year",
+    y = "Population")
 ```
 
 5. Has global life expectancy changed between 1925 and 2025? Show the min, median, mean, and max for all countries (combined) in the dataset.
 ```{r}
-#all countries combined, not individual
+life_expectancy <- gapminder %>%
+  filter(year %in% c(1925, 2025)) %>%
+  group_by(year) %>%
+  summarise(
+    min_lex = min(lex, na.rm = TRUE),
+    median_lex = median(lex, na.rm = TRUE),
+    mean_lex = mean(lex, na.rm = TRUE),
+    max_lex = max(lex, na.rm = TRUE))
 ```
 
-6. Make a plot that shows the distribution of life expectancy for all countries in 1925 and 2025 (try using `geom_density`). What do you notice about the shift in life expectancy over time?
 ```{r}
-#lab 11_2 example will help
+life_expectancy
+```
+
+
+6. Make a plot that shows the distribution of life expectancy for all countries in 1925 and 2025 (try using `geom_density`). What do you notice about the shift in life expectancy over time?
+Life expectancy has grown a lot, and there is a higher desity of older population in 2025 than 1925.
+```{r}
+gapminder %>%
+  filter(year %in% c(1925, 2025)) %>%
+  ggplot(aes(x = lex, fill = factor(year))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Life Expectancy: 1925 vs 2025",
+    x = "Life Expectancy",
+    y = "Density",
+    fill = "Year") +
+  theme_classic()
 ```
 
 7. We are interested in the relationship between per capita GDP and life expectancy; i.e. does having more money help you live longer in 2025? Show this as a plot. (Suggestion! Remove Monaco as an extreme outlier.)
+There is a positive relationship between per captia GDP and life expectancy.
 ```{r}
-
+gapminder %>%
+  filter(year == 2025, country != "Monaco") %>%
+  ggplot(aes(x = gdp, y = lex)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Relationship Between GDP and Life Expectancy",
+    x = "GDP",
+    y = "Life Expectancy") +
+  theme_classic()
 ```
 
 8. Which five countries have had the highest absolute GDP per capita growth over the past 50 years? Show this as a table. (Suggestion! Remove Monaco as an extreme outlier.)
+Singapore, Ireland, Luxembourg, Guyana, Norway
 ```{r}
-
+gdp_growth <- gapminder %>%
+  filter(year %in% c(1975, 2025), country != "Monaco") %>%
+  select(country, year, gdp) %>%
+  pivot_wider(names_from = year, values_from = gdp) %>% 
+  mutate(gdp_growth = `2025` - `1975`) %>%                     
+  arrange(desc(gdp_growth)) %>%                                 
+  slice_head(n = 5)                                           
 ```
+
+```{r}
+gdp_growth
+```
+
 
 9. How does per capita GDP growth compare between these same five countries over the past 50 years? Show this as a plot.
 ```{r}
-
+five_countries <- gdp_growth$country
 ```
+
+```{r}
+gapminder %>%
+  filter(country %in% five_countries, year >= 1975) %>% 
+  ggplot(aes(x = year, y = gdp, color = country)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  labs(title = "GDP per Capita Growth Over the Past 50 Years",
+    x = "Year",
+    y = "GDP per Capita",
+    color = "Country") +
+  theme_classic()
+```
+
 
 10. Do one analysis of your choice that includes a table and plot as outputs.
+Relationship between life expectancy and population size.
 ```{r}
-#he wants you to do something interesting
+top5_pop <- gapminder %>%
+  filter(year == 2025) %>%
+  arrange(desc(pop)) %>%
+  slice_head(n = 5) %>%
+  select(country, pop, lex, gdp)
 ```
 
 ```{r}
-
+top5_pop
 ```
+```{r}
+gapminder %>%
+  filter(year == 2025) %>%
+  ggplot(aes(x = pop, y = lex)) +
+  geom_point(color = "darkgreen", alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  scale_x_log10() + 
+  labs(title = "Life Expectancy vs Population Size (2025)",
+    x = "Population (log scale)",
+    y = "Life Expectancy") +
+  theme_classic()
+```
+
+
 
 ## Knit and Upload
 Please knit your work as an .html file and upload to Canvas. Homework is due before the start of the next lab. No late work is accepted. Make sure to use the formatting conventions of RMarkdown to make your report neat and clean! 
