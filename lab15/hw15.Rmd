@@ -28,12 +28,15 @@ elephants <- read_csv("data/elephants_data/elephants.csv") %>%
   clean_names()
 ```
 
-1. There are only three variables in the data. Two are continuous (age, height) and one is categorical (sex). Build an app that compares the range of age and height by sex. Users should be able to select either age or height. Make the app neat, clean, and professional. Use `shinydashboard` to improve the aesthetics of your app.
+1. There are only three variables in the data. Two are continuous (age, height) and one is categorical (sex). Build an app that compares the range of age and height by sex. Users should be able to select either age or height. Make the app neat, clean, and professional. Use `shinydashboard` to improve the aesthetics of your app. 
+
+##boxplot!!!
 ```{r, eval=F, echo=T}
 
 ```
 
 2. In addition to the .Rmd file, save your app as a standalone R script called `elephants.csv`.
+##read csv. into standalone r app (file//new file - rscript -- then put read .csv into the code)
 
 ## Knit and Upload
 Please knit your work as an .html file and upload to Canvas. Homework is due before the start of the next lab. No late work is accepted. Make sure to use the formatting conventions of RMarkdown to make your report neat and clean!
