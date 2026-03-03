@@ -32,7 +32,17 @@ elephants <- read_csv("data/elephants_data/elephants.csv") %>%
 
 ##boxplot!!!
 ```{r, eval=F, echo=T}
+library(shiny)
 
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
 ```
 
 2. In addition to the .Rmd file, save your app as a standalone R script called `elephants.csv`.
