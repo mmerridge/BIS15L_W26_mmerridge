@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Your Name Here" />
+<meta name="author" content="Maison Erridge" />
 
 <meta name="date" content="2026-03-02" />
 
@@ -375,7 +375,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">Homework 15</h1>
-<h4 class="author">Your Name Here</h4>
+<h4 class="author">Maison Erridge</h4>
 <h4 class="date">2026-03-02</h4>
 
 </div>
@@ -424,14 +424,31 @@ age or height. Make the app neat, clean, and professional. Use
 <code>shinydashboard</code> to improve the aesthetics of your app.</li>
 </ol>
 <p>##boxplot!!!</p>
-<pre class="r"><code>library(shiny)
-
-ui &lt;- fluidPage(
-  
+<pre class="r"><code>ui &lt;- dashboardPage(
+  dashboardHeader(title = &quot;African Elephants Age and Height by Sex&quot;),
+  dashboardSidebar(disable = T),
+  dashboardBody(
+    selectInput(&quot;y&quot;,
+                &quot;Select Variable&quot;,
+                choices  = c(&quot;age&quot;, &quot;height&quot;),
+                selected = &quot;age&quot;),
+    plotOutput(&quot;plot&quot;, width = &quot;500px&quot;, height = &quot;400px&quot;)
+  )
 )
 
 server &lt;- function(input, output, session) {
-  
+  output$plot &lt;- renderPlot({
+    elephants %&gt;%
+      filter(!is.na(sex)) %&gt;%
+      ggplot(aes(x    = sex,
+                 y    = .data[[input$y]],
+                 fill = sex)) +
+      geom_boxplot(alpha = 0.8, color = &quot;black&quot;) +
+      labs(title = paste(&quot;Range of&quot;, input$y, &quot;by Sex&quot;),
+           x     = &quot;Sex&quot;,
+           y     = input$y) +
+      theme_minimal()
+  })
 }
 
 shinyApp(ui, server)</code></pre>

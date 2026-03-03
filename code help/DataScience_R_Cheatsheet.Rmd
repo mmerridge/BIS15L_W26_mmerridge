@@ -1,0 +1,1837 @@
+---
+title: "Data Science in R — Full Semester Cheat Sheet"
+author: "Compiled from Course Notes"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: spacelab
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+---
+
+# 1. Setup & Working Directories
+
+```{r, eval=FALSE}
+# Check your current working directory
+getwd()
+
+# Set your working directory (uncomment and change to your path)
+# setwd("/Users/yourname/Documents/yourfolder")
+
+# Example: set to a subfolder
+setwd("~/Desktop/BIS15L_W26_mmerridge/lab2/homework")
+```
+
+---
+
+# 2. Objects & Basic Operations
+
+## 2.1 Assigning Objects
+
+```{r, eval=FALSE}
+# Assign a value to object x using the gets arrow (<-)
+# Shortcut on Mac: Option + -
+x <- 42
+
+# Print the object to the screen
+x
+
+# Assign more objects
+y <- 30
+treatment <- 36
+control   <- 38
+
+# NOTE: Do NOT use = for assignment (not conventional in R)
+z = 10  # works but avoid this
+```
+
+## 2.2 Arithmetic with Objects
+
+```{r, eval=FALSE}
+# Basic math between objects
+x + y
+x / y
+
+# Sum of two objects
+treatment + control
+
+# Store the result in a new object (underscore for spaces in names)
+my_experiment <- treatment + control
+my_experiment
+
+# Use the sum() function — if you reuse the same object name, it is overwritten
+my_experiment <- sum(treatment, control)
+my_experiment
+
+# Get help on any function
+?sum
+```
+
+## 2.3 Naming Conventions
+
+```{r, eval=FALSE}
+# DO NOT name objects the same as built-in R functions
+# else <- 12   # ERROR — else is a reserved word in R
+
+# Naming an object 'mean' is allowed but confusing:
+mean <- 20
+
+# Order of operations applies; use parentheses to be explicit
+2 + 8 + 2 / 3      # divides 2 by 3 first — NOT what you want
+(2 + 8 + 2) / 3    # correct: 4
+
+# Use c() (concatenate) to combine values into a vector for functions like mean()
+mean(c(2, 8, 2))    # correct: 4
+
+# This does NOT work — mean() only takes one argument for values
+mean(2, 8, 2)       # wrong: only uses 2
+```
+
+---
+
+# 3. Data Classes
+
+```{r, eval=FALSE}
+# The four main data classes in R:
+my_numeric   <- 42
+my_integer   <- 2L         # Adding L makes it an integer
+my_character <- "universe"
+my_logical   <- FALSE
+
+# Check class
+class(my_numeric)
+class(my_integer)
+
+# Test if something IS a specific class
+is.integer(my_numeric)   # FALSE — 42 is numeric, not integer
+
+# Convert to a different class using as.___()
+my_numeric <- as.integer(my_numeric)  # converts numeric to integer
+is.integer(my_numeric)                # now TRUE
+
+# Convert to factor (useful for categorical variables)
+hot_springs$scientist <- as.factor(hot_springs$scientist)
+levels(hot_springs$scientist)   # shows the factor levels
+```
+
+---
+
+# 4. Missing Data (NA)
+
+```{r, eval=FALSE}
+# NA is R's symbol for missing data
+my_missing <- NA
+
+# Test for NA
+is.na(my_missing)    # TRUE
+anyNA(my_missing)    # TRUE
+
+# Create a vector with some NA values
+new_vector <- c(7, 6.2, 5, 9, NA, 4, 9.8, 7, 3, 2)
+
+# mean() with NA returns NA by default — NA "infects" calculations
+mean(new_vector)
+
+# Remove NA's from the calculation using na.rm = TRUE
+mean(new_vector, na.rm = TRUE)
+
+# Check how many NA's are in each column of a data frame
+life_history %>%
+  summarize(across(everything(), ~ sum(is.na(.))))
+
+# Find all -999 values (a common NA placeholder in published data)
+life_history %>%
+  summarize(across(everything(), ~ sum(. == -999)))
+```
+
+---
+
+# 5. Vectors
+
+## 5.1 Creating Vectors
+
+```{r, eval=FALSE}
+# Numeric vector
+my_vector <- c(10, 20, 30)
+
+# Character vector
+days_of_the_week <- c("Monday", "Tuesday", "Wednesday", "Thursday",
+                      "Friday", "Saturday", "Sunday")
+
+# Sequence vector — quick way to generate test data
+my_vector_sequence <- c(1:100)
+```
+
+## 5.2 Indexing Vectors
+
+```{r, eval=FALSE}
+# Use [] to pull out a specific element by position
+days_of_the_week[4]          # "Thursday" — the 4th element
+my_vector_sequence[10]       # 10
+
+# Use logical operators to test all elements
+my_vector_sequence <= 10     # returns TRUE/FALSE for each element
+
+# Use [] with a logical condition to return only matching values
+my_vector_sequence[my_vector_sequence <= 10]   # returns 1 through 10
+```
+
+---
+
+# 6. Data Frames & Tibbles
+
+## 6.1 Building a Data Frame
+
+```{r, eval=FALSE}
+# Create individual vectors first
+Sex    <- c("male", "female", "male")
+Length <- c(3.2, 3.7, 3.4)
+Weight <- c(2.9, 4.0, 3.1)
+
+# Combine into a tibble (tidyverse data frame)
+hbirds <- tibble(Sex, Length, Weight)
+
+# Give custom column names at creation time
+hbirds <- tibble(sex = Sex, length = Length, weight_g = Weight)
+
+# Using base R data.frame()
+mountains <- data.frame(tallest_mountains_hight_ft,
+                        tallest_mountains_hight_m,
+                        tallest_mountains_names)
+```
+
+## 6.2 Inspecting a Data Frame
+
+```{r, eval=FALSE}
+# Column names
+names(hbirds)
+
+# Dimensions: rows x columns
+dim(hbirds)
+
+# Structure of the data frame (shows column types)
+str(hbirds)
+
+# Similar to str(), but tidyverse style
+glimpse(hbirds)
+
+# Summary statistics for every column
+summary(hbirds)
+
+# First n rows (default 6)
+head(fish)
+
+# Last n rows (default 6)
+tail(fish)
+
+# Number of rows
+nrow(fish)
+
+# Number of columns
+ncol(fish)
+
+# Count observations in a categorical variable — fast frequency table
+table(fish$lakeid)
+```
+
+## 6.3 Accessing Rows and Columns
+
+```{r, eval=FALSE}
+# Access by [row, column] — leave one blank to get all rows or all columns
+hbirds[1, ]   # first row, all columns
+hbirds[ , 3]  # all rows, third column
+
+# Access a column as a vector using $
+mean(hbirds$length)
+```
+
+---
+
+# 7. Importing & Exporting Data
+
+## 7.1 Reading Data
+
+```{r, eval=FALSE}
+# Check working directory before importing
+getwd()
+
+# Read a CSV file using tidyverse read_csv()
+hot_springs <- read_csv("hsprings.csv")
+
+# Read from a subfolder
+fish <- read_csv("data/Gaeta_etal_CLC_data.csv")
+
+# Import and immediately replace -999 with NA
+life_history <- read_csv("data/mammal_lifehistories_v3.csv", na = "-999")
+
+# Import and immediately clean column names (lowercase, underscores)
+mammals <- read_csv("data/mammal_lifehistories_v2.csv") %>% clean_names()
+
+# Import with multiple NA representations
+sharks <- read_csv("data/SharkIncidents_1950_2022_220302.csv",
+                   na = c("NA", "N/A", "Unknown", "NOT COUNTED", "", " ")) %>%
+  clean_names()
+
+# Import with a specific NA string and multiple NA values for a column
+homerange <- read_csv("data/Tamburelloetal_HomeRangeDatabase.csv",
+                      na = c("", "NA", "\\")) %>%
+  clean_names()
+```
+
+## 7.2 Writing Data
+
+```{r, eval=FALSE}
+# Write a data frame to CSV — row.names = FALSE avoids adding row numbers
+write.csv(hbirds, "hbirds_data.csv", row.names = FALSE)
+
+# tidyverse version (slightly preferred)
+write_csv(mountains, "mountains_data.csv")
+
+# Save spider data with locations to CSV
+write.csv(spiders_with_locs, file = "spiders_with_locs.csv", row.names = FALSE)
+```
+
+---
+
+# 8. Cleaning Data with janitor
+
+```{r, eval=FALSE}
+library("janitor")
+
+# clean_names() converts column names to lowercase with underscores
+# Best practice: use it at import
+mammals <- read_csv("data/mammal_lifehistories_v2.csv") %>% clean_names()
+
+# You can also apply it after import
+mammals <- mammals %>% clean_names()
+
+# tabyl() produces counts and percentages for a variable (from janitor)
+msleep %>%
+  tabyl(vore)
+```
+
+---
+
+# 9. dplyr — Data Wrangling
+
+## 9.1 `select()` — Choose Columns
+
+```{r, eval=FALSE}
+library("tidyverse")
+
+# Select specific columns by name (order matters for output)
+select(penguins, species, body_mass_g)
+
+# Select a range of columns using start:end
+select(penguins, species:flipper_length_mm)
+
+# Exclude a column using !
+select(penguins, !body_mass_g)
+
+# Exclude multiple columns using c()
+select(penguins, !c(species, island, year, sex))
+
+# Select columns that contain a string
+select(penguins, contains("mm"))
+
+# Select columns that start with a string
+select(penguins, starts_with("bill"))
+
+# Select columns that end with a string
+select(penguins, ends_with("mm"))
+
+# Select only numeric columns
+select(penguins, where(is.numeric))
+
+# Select only character columns
+select(msleep, where(is.character))
+```
+
+## 9.2 `rename()` and `relocate()`
+
+```{r, eval=FALSE}
+# rename(): new_name = old_name
+rename(penguins, body_mass = body_mass_g)
+
+# Rename inside select() — selects AND renames at the same time
+select(penguins, species, body_mass = body_mass_g)
+
+# relocate() moves a column to a different position (default: first)
+relocate(penguins, year)
+```
+
+## 9.3 `filter()` — Filter Rows
+
+```{r, eval=FALSE}
+# Filter for exact match (== for equality)
+filter(penguins, species == "Adelie")
+
+# Filter with comparison operators: >, >=, <, <=, != (not equal)
+filter(penguins, body_mass_g >= 5500)
+filter(penguins, species != "Chinstrap")
+
+# Filter using %in% — checks if value is in a vector of options
+filter(penguins, body_mass_g %in% c(5250, 5500))
+
+# Filter with between() — inclusive range
+filter(penguins, between(body_mass_g, 5250, 5500))
+
+# Filter with near() — values within a tolerance of a target
+filter(penguins, near(body_mass_g, 5400, tol = 100))
+
+# Filter for lake "BO" in fish data
+filter(fish, lakeid == "BO")
+
+# Exclude lake "AR"
+filter(fish, lakeid != "AR")
+
+# Filter for values within 0.25 of 8
+filter(fish, near(scalelength, 8, tol = 0.25))
+
+# Filter for scalelength between 2 and 4
+filter(fish, between(scalelength, 2, 4))
+```
+
+## 9.4 Multiple Conditions in `filter()`
+
+```{r, eval=FALSE}
+# AND: both conditions must be TRUE (use & or a comma)
+filter(penguins, species == "Chinstrap" & body_mass_g > 4500)
+filter(penguins, species == "Chinstrap", body_mass_g > 4500)  # same as above
+
+# OR: at least one condition must be TRUE (use |)
+filter(penguins, species == "Chinstrap" | body_mass_g > 4500)
+
+# NOT condition2: condition1 TRUE but condition2 FALSE
+filter(penguins, species == "Chinstrap", !body_mass_g > 4500)
+
+# Combining AND + OR with parentheses for clarity
+filter(penguins, body_mass_g > 5000 & (bill_length_mm > 50 | bill_depth_mm > 18))
+
+# Filter for multiple lake IDs
+filter(fish, lakeid == "AL" | lakeid == "AR")
+# OR equivalently with %in%:
+filter(fish, lakeid %in% c("AL", "AR"))
+```
+
+## 9.5 `arrange()` — Sort Rows
+
+```{r, eval=FALSE}
+# Sort in ascending order (default)
+penguins %>%
+  filter(species == "Gentoo") %>%
+  arrange(body_mass_g)
+
+# Sort in descending order using desc()
+penguins %>%
+  filter(species == "Gentoo") %>%
+  arrange(desc(body_mass_g))
+```
+
+## 9.6 `slice()` — Extract Specific Rows
+
+```{r, eval=FALSE}
+# Get the row(s) with the smallest value — n= specifies how many rows
+penguins %>%
+  select(species, body_mass_g) %>%
+  filter(species == "Gentoo") %>%
+  slice_min(body_mass_g, n = 1)
+
+# Get the top n rows (after sorting)
+homerange %>%
+  arrange(desc(mean.hra.m2)) %>%
+  slice_head(n = 10)
+
+# Get the last n rows
+homerange %>%
+  arrange(desc(mean.hra.m2)) %>%
+  slice_tail(n = 1)
+
+# See all slice options
+?slice
+```
+
+## 9.7 Pipes `%>%`
+
+```{r, eval=FALSE}
+# Pipes feed output from one function into the next
+# Think of them as "and then"
+
+# Example: select species and body_mass, THEN filter for Gentoo only
+penguins %>%
+  select(species, body_mass_g) %>%
+  filter(species == "Gentoo")
+
+# Chain select + filter + arrange
+penguins %>%
+  select(species, body_mass_g) %>%
+  filter(species == "Gentoo") %>%
+  arrange(desc(body_mass_g))
+
+# Complex example: fish by ID, sorted
+fish %>%
+  select(fish_id, radii_length_mm, scalelength) %>%
+  filter(fish_id == 300) %>%
+  arrange(scalelength)
+```
+
+---
+
+# 10. dplyr — Transforming Data
+
+## 10.1 `distinct()` — Find Unique Rows
+
+```{r, eval=FALSE}
+# Check for duplicated rows across all columns
+penguins %>%
+  distinct()
+
+# Find all unique species
+penguins %>%
+  distinct(species)
+
+# Find unique combinations of species + island, keep all other columns
+penguins %>%
+  distinct(species, island, .keep_all = T)
+```
+
+## 10.2 `mutate()` — Create New Columns
+
+```{r, eval=FALSE}
+# Create a new column by transforming an existing one
+penguins %>%
+  mutate(body_mass_kg = body_mass_g / 1000) %>%
+  select(species, body_mass_g, body_mass_kg) %>%
+  arrange(body_mass_kg)
+
+# Convert multiple columns at once using across()
+# ~ starts a lambda (anonymous function), . represents the current column
+penguins %>%
+  mutate(across(ends_with("mm"), ~ . / 10))
+
+# Convert specific columns to a different type
+gabon <- gabon %>%
+  mutate(across(c("hunt_cat", "land_use", "transect_id"), as.factor))
+
+# Convert all character columns to lowercase
+mammals %>%
+  mutate(across(where(is.character), tolower))
+
+# Convert specific named columns to lowercase
+mammals %>%
+  mutate(across(c("order", "family"), tolower))
+
+# Convert everything to lowercase — WARNING: changes numeric columns to character
+mammals %>%
+  mutate(across(everything(), tolower))
+
+# Add a computed column and chain transformations
+mammals %>%
+  mutate(mass_kg = mass / 1000) %>%
+  select(genus, species, mass, mass_kg) %>%
+  arrange(desc(mass_kg))
+
+# Convert max_life from months to years in a new column
+mammals %>%
+  select(genus, species, max_life) %>%
+  mutate(max_life_new = max_life / 12) %>%
+  arrange(desc(max_life_new))
+```
+
+## 10.3 `if_else()` and `na_if()` — Conditional Transformations
+
+```{r, eval=FALSE}
+# if_else(condition, value_if_TRUE, value_if_FALSE)
+# Replace -999 with NA in a specific column
+mammals %>%
+  select(genus, species, newborn) %>%
+  mutate(newborn_new = ifelse(newborn == -999.00, NA, newborn))
+
+# Replace -999 across many columns
+mammals <- mammals %>%
+  mutate(mass        = ifelse(mass        == -999.00, NA, mass)) %>%
+  mutate(gestation   = ifelse(gestation   == -999.00, NA, gestation)) %>%
+  mutate(newborn     = ifelse(newborn     == -999.00, NA, newborn)) %>%
+  mutate(weaning     = ifelse(weaning     == -999.00, NA, weaning)) %>%
+  mutate(wean_mass   = ifelse(wean_mass   == -999.00, NA, wean_mass)) %>%
+  mutate(afr         = ifelse(afr         == -999.00, NA, afr)) %>%
+  mutate(max_life    = ifelse(max_life    == -999.00, NA, max_life)) %>%
+  mutate(litter_size = ifelse(litter_size == -999.00, NA, litter_size)) %>%
+  mutate(litters_year= ifelse(litters_year== -999.00, NA, litters_year))
+
+# na_if() — replace a specific value with NA in a single column
+life_history_no_nas <- life_history_no_nas %>%
+  mutate(max_life = na_if(max_life, 0))
+
+# Fix negative values that should be NA
+amniota_tidy <- amniota_tidy %>%
+  mutate(female_maturity_d = ifelse(female_maturity_d < 0, NA, female_maturity_d))
+```
+
+## 10.4 `case_when()` — Multi-Condition Transformation
+
+```{r, eval=FALSE}
+# case_when() creates a new categorical column from a numeric one
+# Syntax: condition ~ "label"
+
+income_cat2000 <- gap %>%
+  filter(year == 2000) %>%
+  mutate(income_category = case_when(
+    gdp <= 1100                  ~ "low",
+    gdp > 1100  & gdp <= 4500   ~ "low_middle",
+    gdp > 4500  & gdp <= 13900  ~ "upper_middle",
+    gdp > 13900                 ~ "high"
+  )) %>%
+  select(country, gdp, income_category) %>%
+  # Convert to factor with specific level order for plotting
+  mutate(income_category = factor(income_category,
+                                  levels = c("low",
+                                             "low_middle",
+                                             "upper_middle",
+                                             "high")))
+
+# case_when() with string matching — create season categories from month
+sydneybeaches_long %>%
+  separate(date, into = c("day", "month", "year"), sep = "/") %>%
+  mutate(season = case_when(
+    month == "12" | month == "01" | month == "02" ~ "winter",
+    month == "03" | month == "04" | month == "05" ~ "spring",
+    month == "06" | month == "07" | month == "08" ~ "summer",
+    month == "09" | month == "10" | month == "11" ~ "fall"
+  ))
+```
+
+---
+
+# 11. dplyr — Summarizing Data
+
+## 11.1 `summarize()` — Summary Statistics
+
+```{r, eval=FALSE}
+# Basic single-variable summary
+msleep %>%
+  filter(bodywt > 150) %>%
+  summarize(mean_bodywt_lg = mean(bodywt))
+
+# Multiple statistics at once — all in one summarize() call
+msleep %>%
+  filter(bodywt > 150) %>%
+  summarize(mean_bodywt_lg = mean(bodywt),
+            min_bodywt_lg  = min(bodywt),
+            max_bodywt_lg  = max(bodywt),
+            sd_bodywt_lg   = sd(bodywt),
+            total          = n())         # n() counts rows
+
+# Summarize all numeric columns (with NA removal)
+msleep %>%
+  select(where(is.numeric)) %>%
+  summarize_all(mean, na.rm = TRUE)
+
+# More concise version using across()
+msleep %>%
+  summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)))
+
+# Multiple functions across all numeric columns
+elephants %>%
+  summarize(
+    across(
+      where(is.numeric),
+      list(
+        mean   = ~ mean(.x,   na.rm = TRUE),
+        median = ~ median(.x, na.rm = TRUE),
+        sd     = ~ sd(.x,     na.rm = TRUE),
+        min    = ~ min(.x,    na.rm = TRUE),
+        max    = ~ max(.x,    na.rm = TRUE),
+        n      = ~ sum(!is.na(.x))
+      )
+    )
+  )
+```
+
+## 11.2 `n()`, `n_distinct()`, and `pull()`
+
+```{r, eval=FALSE}
+# n() counts total rows in a group
+msleep %>%
+  filter(bodywt > 150) %>%
+  summarize(total = n())
+
+# n_distinct() counts unique values
+msleep %>%
+  summarize(n_genera = n_distinct(genus))
+
+# How many distinct genera have body weight > 150?
+msleep %>%
+  filter(bodywt > 150) %>%
+  summarize(n_genera = n_distinct(genus))
+
+# pull() extracts a single column as a vector (not a data frame)
+msleep %>%
+  filter(bodywt > 150) %>%
+  distinct(genus) %>%
+  pull(genus)
+```
+
+## 11.3 `group_by()` — Grouped Summaries
+
+```{r, eval=FALSE}
+# group_by() + summarize() = summary statistics per group
+elephants %>%
+  group_by(sex) %>%
+  summarize(across(where(is.numeric), ~ mean(.x, na.rm = T)))
+
+# Group by multiple variables
+elephants %>%
+  group_by(years_of_sample_collection, sex) %>%
+  summarize(mean_estimated_age_years = mean(estimated_age_years, na.rm = T),
+            n = n(),
+            .groups = 'keep') %>%   # .groups = 'keep' suppresses a warning
+  arrange(sex)
+
+# Another grouped summary — min, max, mean, n by vore type
+msleep %>%
+  group_by(vore) %>%
+  summarize(min  = min(bodywt, na.rm = T),
+            max  = max(bodywt, na.rm = T),
+            mean = mean(bodywt, na.rm = T),
+            n    = n(),
+            .groups = 'keep')
+
+# Grouped miss_var_summary (requires naniar)
+life_history_no_nas %>%
+  group_by(order) %>%
+  miss_var_summary(order = T)
+```
+
+## 11.4 `count()` — Quick Frequency Counts
+
+```{r, eval=FALSE}
+# Count observations per category
+msleep %>%
+  count(vore)
+
+# Count and sort in descending order
+msleep %>%
+  count(vore, sort = T)
+
+# Count combinations of two variables
+msleep %>%
+  count(vore, order)
+
+# Count then filter for top n
+msleep %>%
+  filter(vore == "herbi") %>%
+  count(order, sort = T)
+
+# tabyl() from janitor — adds percentage column
+msleep %>%
+  tabyl(vore)
+```
+
+---
+
+# 12. Tidy Data — `tidyr`
+
+## 12.1 `pivot_longer()` — Wide to Long
+
+```{r, eval=FALSE}
+# Rules:
+# pivot_longer(cols, names_to, values_to)
+# cols       = columns to pivot
+# names_to   = name of the new column that will hold old column names
+# values_to  = name of the new column that will hold the values
+
+# Example 1: all columns except patient become rows
+heartrate_long <- heartrate %>%
+  pivot_longer(-patient,               # don't pivot the 'patient' column
+               names_to  = "drug",     # old column names become values here
+               values_to = "heartrate") # cell values go here
+
+# Example 2: pivot a range of columns, drop NAs
+billboard %>%
+  pivot_longer(wk1:wk76,
+               names_to      = "week",
+               values_to     = "rank",
+               values_drop_na = T)   # automatically removes NA rows
+
+# Example 3: pivot all columns except a set of anchor columns
+billboard %>%
+  pivot_longer(-c(artist, track, date.entered),
+               names_to       = "week",
+               values_to      = "rank",
+               values_drop_na = T)
+
+# Example 4: pivot columns matching a prefix, remove the prefix from values
+billboard %>%
+  pivot_longer(
+    cols         = starts_with("wk"),
+    names_to     = "week",
+    names_prefix = "wk",              # removes "wk" from the values in the new column
+    values_to    = "rank",
+    values_drop_na = T
+  )
+
+# Example 5: column names encode TWO variables (experiment_replicate)
+qpcr_tidy <- qpcr_untidy %>%
+  pivot_longer(
+    exp1_rep1:exp3_rep3,
+    names_to  = c("experiment", "replicate"),
+    names_sep = "_",                  # splits on underscore
+    values_to = "mRNA expression"
+  )
+```
+
+## 12.2 `pivot_wider()` — Long to Wide
+
+```{r, eval=FALSE}
+# Rules:
+# pivot_wider(names_from, values_from)
+# names_from  = column whose values become new column names
+# values_from = column whose values fill the new columns
+
+# Simple wide conversion
+tb_data %>%
+  pivot_wider(names_from  = "key",
+              values_from = "value")
+
+# Dates as column names
+sydneybeaches_wide <- sydneybeaches_long %>%
+  pivot_wider(names_from  = date,
+              values_from = enterococci_cfu_100ml)
+
+# Pivot summary data to wide for easy reading
+mean_entero %>%
+  pivot_wider(names_from  = site,
+              values_from = mean_enterococci_cfu_100ml)
+
+# Gene expression data — type becomes column names
+gene_exp %>%
+  pivot_wider(names_from  = "type",
+              values_from = "L4_values")
+
+# Pivot back to long after operations in wide format
+sydneybeaches_wide %>%
+  pivot_longer(-site,
+               names_to  = "date",
+               values_to = "enterococci_cfu_100ml")
+```
+
+## 12.3 `separate()` and `unite()`
+
+```{r, eval=FALSE}
+# separate() splits one column into multiple columns
+# Syntax: separate(column, into = c("new1", "new2"), sep = "delimiter")
+
+# Split on underscore
+heartrate2 %>%
+  separate(patient, into = c("patient", "gender"), sep = "_")
+
+# Split from the end (negative position)
+heartrate2 %>%
+  separate(patient, into = c("patient", "gender"), sep = -1)
+
+# Split date into day/month/year
+sydneybeaches_long %>%
+  separate(date, into = c("day", "month", "year"), sep = "/")
+
+# Remove leftover separator characters using stringr
+heartrate2 %>%
+  separate(patient, into = c("patient", "gender"), sep = -1) %>%
+  mutate(patient = str_remove(patient, "_"))
+
+# unite() is the opposite of separate()
+# unite(new_column_name, col1, col2, sep = "separator")
+heartrate3 %>%
+  unite(patient_gender, "patient", "gender", sep = "_")
+```
+
+---
+
+# 13. Handling NA Values with `naniar`
+
+```{r, eval=FALSE}
+# install.packages("naniar")
+library("naniar")
+
+# miss_var_summary() — count NAs per column, with percentage
+miss_var_summary(life_history_no_nas)
+
+# Visualize NAs per variable as a bar chart
+life_history_no_nas %>%
+  gg_miss_var()
+
+# Visualize where NAs appear in a scatter plot
+life_history_no_nas %>%
+  ggplot(aes(x = log10(mass), y = log10(wean_mass))) +
+  geom_point() +
+  geom_miss_point()   # highlights NA locations in a different color
+
+# Group-level NA summary
+life_history_no_nas %>%
+  group_by(order) %>%
+  miss_var_summary(order = T)
+
+# replace_with_na() — precise replacement per variable
+life_history %>%
+  replace_with_na(replace = list(newborn     = "not measured",
+                                 weaning     = -999,
+                                 wean_mass   = -999,
+                                 afr         = -999,
+                                 max_life    = 0,
+                                 litter_size = -999,
+                                 gestation   = -999,
+                                 mass        = -999)) %>%
+  miss_var_summary()
+
+# replace_with_na_all() — replace one value across the entire data frame
+life_history %>%
+  replace_with_na_all(condition = ~ .x == -999) %>%
+  miss_var_summary()
+
+# Replace using common NA strings/numbers (built-in naniar vectors)
+common_na_strings   # shows the built-in list of string NA representations
+common_na_numbers   # shows the built-in list of numeric NA representations
+
+life_history %>%
+  replace_with_na_all(condition = ~ .x %in% c(common_na_numbers, common_na_strings)) %>%
+  mutate(newborn = na_if(newborn, "not measured"))
+
+# Use read_csv() with na= argument for efficient NA handling at import
+life_history_no_nas <- read_csv("data/mammal_lifehistories_v3.csv", na = "-999") %>%
+  clean_names()
+
+# Replace a specific value with NA after import
+amniota_tidy <- amniota %>%
+  replace_with_na_all(condition = ~ .x == -999)
+```
+
+---
+
+# 14. Joining Data Frames
+
+```{r, eval=FALSE}
+library("tidyverse")
+
+# General syntax: join_type(firstTable, secondTable, by = "key_column")
+
+# inner_join — keeps ONLY rows with matching keys in BOTH tables
+inner_join(table_A, table_B, by = "customer_ID")
+
+# left_join — keeps ALL rows from left table, matches from right (NAs if no match)
+left_join(table_A, table_B, by = "customer_ID")
+
+# right_join — keeps ALL rows from right table, matches from left (NAs if no match)
+right_join(table_A, table_B, by = "customer_ID")
+
+# full_join — keeps ALL rows from BOTH tables (NAs where no match)
+full_join(table_A, table_B, by = "customer_ID")
+
+# anti_join — keeps rows from first table that have NO match in second table
+# Useful for troubleshooting join issues
+anti_join(table_A, table_B, by = "customer_ID")
+
+# Real-world example: join spider records with location data
+spiders_with_locs <- left_join(spider_records, spider_locs, by = "accession")
+```
+
+---
+
+# 15. Working with Dates — `lubridate`
+
+```{r, eval=FALSE}
+library("lubridate")
+
+# Get today's date
+today()
+
+# Get current date and time
+now()
+
+# Converting strings to date objects
+# Use the function that matches the ORDER of your date components
+
+dateformat1 <- "20200922"
+dateformat2 <- "09-22-2020"
+dateformat3 <- "22/09/2020"
+dateformat4 <- "09-22-2020 17:00:00"
+dateformat5 <- "20200922 170000"
+
+ymd(dateformat1)       # year-month-day
+mdy(dateformat2)       # month-day-year
+dmy(dateformat3)       # day-month-year
+mdy_hms(dateformat4)   # month-day-year with hours:minutes:seconds
+ymd_hms(dateformat5)   # year-month-day with time
+
+# Convert a column in a data frame to date format
+spiders_with_locs <- spiders_with_locs %>%
+  mutate(date = dmy(date))   # the date column was in day-month-year format
+```
+
+---
+
+# 16. ggplot2 — Data Visualization
+
+## 16.1 Core Syntax
+
+```{r, eval=FALSE}
+# The grammar of graphics:  plot = data + geom + aesthetics
+
+# Minimum working plot structure:
+ggplot(data = penguins,
+       mapping = aes(x = species, y = body_mass_g)) +
+  geom_boxplot()
+
+# Turn off scientific notation for plots (affects the whole session)
+options(scipen = 999)
+```
+
+## 16.2 Boxplots — `geom_boxplot()`
+
+```{r, eval=FALSE}
+# Basic boxplot
+ggplot(data = penguins,
+       mapping = aes(x = species, y = body_mass_g)) +
+  geom_boxplot()
+
+# Boxplot with fill by a categorical variable
+ggplot(data = msleep,
+       mapping = aes(x = vore, y = bodywt)) +
+  scale_y_log10() +                          # log-scale the y axis
+  geom_boxplot() +
+  labs(title = "Range of Bodyweight by Vore Type")
+
+# Boxplot comparing two categorical variables (group by taxon within class)
+homerange %>%
+  ggplot(aes(x = class, y = log10_mass, fill = taxon)) +
+  geom_boxplot()
+```
+
+## 16.3 Scatter Plots — `geom_point()`
+
+```{r, eval=FALSE}
+# Basic scatter plot
+ggplot(data = penguins,
+       mapping = aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point()
+
+# Remove NA warning
+ggplot(data = penguins,
+       mapping = aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point(na.rm = T)
+
+# Add a linear regression line (se = T shows confidence band)
+ggplot(data = penguins,
+       mapping = aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point(na.rm = T) +
+  geom_smooth(method = lm, se = T)
+
+# Color points by a third variable (passed to geom_point only)
+ggplot(data = penguins,
+       mapping = aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = lm, se = T)   # single regression line for all data
+
+# Color AND shape by species
+ggplot(data = penguins,
+       mapping = aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = lm, se = T)
+
+# Jitter (useful when points overlap)
+p + geom_jitter(size = 3)
+
+# Custom point appearance (no variable mapping — global aesthetics)
+p + geom_point(size = 3, color = "black", alpha = 0.6, shape = 6, fill = "lemonchiffon4")
+
+# See all available color names
+colors()
+
+# Log-scale axes
+ggplot(data = msleep,
+       mapping = aes(x = bodywt, y = sleep_total)) +
+  scale_x_log10() +
+  geom_point(mapping = aes(color = vore)) +
+  geom_smooth(method = lm, se = T)
+```
+
+## 16.4 Bar Plots — `geom_bar()` and `geom_col()`
+
+```{r, eval=FALSE}
+# geom_bar() — counts observations in a categorical variable automatically
+ggplot(data = penguins,
+       mapping = aes(x = species)) +
+  geom_bar()
+
+# Fill inside bars by the same variable (adds color)
+ggplot(data = penguins,
+       mapping = aes(x = species)) +
+  geom_bar(mapping = aes(fill = species))
+
+# Stacked bar: fill by a DIFFERENT variable
+homerange %>%
+  ggplot(aes(x = taxon, fill = trophic_guild)) +
+  geom_bar() +
+  coord_flip()
+
+# Side-by-side bar: position = "dodge"
+homerange %>%
+  ggplot(aes(x = taxon, fill = trophic_guild)) +
+  geom_bar(position = "dodge") +
+  coord_flip()
+
+# Percentage bar: scale to 100%
+homerange %>%
+  ggplot(aes(x = taxon, fill = trophic_guild)) +
+  geom_bar(position = position_fill()) +
+  scale_y_continuous(labels = scales::percent) +
+  coord_flip()
+
+# geom_col() — when you have pre-counted data (x AND y specified)
+life_history %>%
+  count(order, sort = T) %>%
+  ggplot(aes(x = order, y = n)) +
+  geom_col() +
+  coord_flip()
+
+# geom_col() with mean values — reorder() sorts bars by value
+life_history %>%
+  group_by(order) %>%
+  summarize(mean_mass = mean(mass, na.rm = T)) %>%
+  ggplot(aes(x = reorder(order, mean_mass), y = mean_mass)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_log10()
+```
+
+## 16.5 Line Plots — `geom_line()`
+
+```{r, eval=FALSE}
+# Line plot over time
+gap %>%
+  filter((year >= 2000 & year <= 2025) & country == "USA") %>%
+  ggplot(aes(x = year, y = gdp)) +
+  geom_line() +
+  geom_point(shape = 5) +
+  scale_x_continuous(breaks = 2000:2025, minor_breaks = NULL) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  labs(title = "GDP per Capita in the USA, 2000-2025",
+       x = "Year",
+       y = "GDP")
+
+# Line plot with custom color and wider spacing on x breaks
+gap %>%
+  filter((year >= 2000 & year <= 2025) & country == "USA") %>%
+  ggplot(aes(x = year, y = gdp)) +
+  geom_line(color = "red") +
+  geom_point(shape = 5) +
+  scale_x_continuous(breaks = seq(2000, 2025, by = 5)) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+# Line plot with custom linewidth
+gapminder %>%
+  filter(country == top_country) %>%
+  ggplot(aes(year, pop)) +
+  geom_line(color = "steelblue", linewidth = 1)
+```
+
+## 16.6 Histograms — `geom_histogram()`
+
+```{r, eval=FALSE}
+# Basic histogram
+gap %>%
+  filter(year == 1935) %>%
+  ggplot(aes(x = lex)) +
+  geom_histogram()
+
+# Histogram with custom color (outline), fill, and number of bins
+# color = bar outline, fill = bar interior
+gap %>%
+  filter(year == 1935) %>%
+  ggplot(aes(x = lex)) +
+  geom_histogram(color = "black", fill = "turquoise4", bins = 30) +
+  labs(title = "Distribution of Life Expectancy")
+
+# Combine histogram and density curve on the same plot
+# after_stat(density) scales the histogram so it matches the density y axis
+gap %>%
+  filter(year == 1935) %>%
+  ggplot(aes(x = lex)) +
+  geom_histogram(aes(y = after_stat(density)), color = "black", fill = "turquoise4") +
+  geom_density(color = "red")
+```
+
+## 16.7 Density Plots — `geom_density()`
+
+```{r, eval=FALSE}
+# Basic density plot
+gap %>%
+  filter(year == 1935) %>%
+  ggplot(aes(x = lex)) +
+  geom_density(color = "turquoise4", fill = "turquoise4", alpha = 0.4)
+
+# Overlapping density plots — color and fill by year (use factor for discrete colors)
+gap %>%
+  filter(year %in% c(1930, 1950)) %>%
+  mutate(year = factor(year)) %>%           # must be a factor for discrete coloring
+  ggplot(aes(x = lex, color = year, fill = year)) +
+  geom_density(alpha = 0.3) +
+  labs(title = "Distribution of Life Expectancy, 1930 and 1950",
+       x     = "Life Expectancy (years)",
+       y     = NULL,
+       color = "Year",
+       fill  = "Year")
+```
+
+## 16.8 Labels and Titles — `labs()`
+
+```{r, eval=FALSE}
+# Add title, x label, y label, and legend titles
+ggplot(data = penguins,
+       mapping = aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = lm, se = T) +
+  labs(title = "Body Mass (g) vs. Flipper Length (mm)",
+       x     = "Body Mass (g)",
+       y     = "Flipper Length (mm)")
+
+# Remove an axis label by setting it to NULL
+homerange %>%
+  ggplot(aes(x = taxon)) +
+  geom_bar() +
+  labs(title = "Observations by Taxon",
+       x     = "Taxonomic Group",
+       y     = NULL)   # removes the y-axis label entirely
+```
+
+## 16.9 Themes and Text Customization
+
+```{r, eval=FALSE}
+# theme() adjusts plot elements
+# rel() scales text relative to the base size
+# hjust controls horizontal alignment (0 = left, 0.5 = center, 1 = right)
+
+life_history %>%
+  ggplot(aes(x = mass, y = litter_size)) +
+  geom_point(na.rm = T) +
+  scale_x_log10() +
+  geom_smooth(method = lm, se = F, na.rm = T) +
+  labs(title = "Mass vs. Litter Size",
+       x     = "Mass (g)",
+       y     = "Litter Size") +
+  theme(plot.title = element_text(size = rel(2), hjust = 0.5))
+
+# Rotate x-axis text — useful for long category names
+homerange %>%
+  ggplot(aes(x = taxon, fill = trophic_guild)) +
+  geom_bar(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Move legend position
+p + theme_linedraw() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 60, hjust = 1))
+
+# Remove the legend
+income_cat2000 %>%
+  ggplot(aes(x = income_category, fill = income_category)) +
+  geom_bar() +
+  theme(legend.position = "none")
+
+# Built-in themes
+p + theme_gray()
+p + theme_classic()
+p + theme_minimal()
+p + theme_linedraw()
+p + theme_bw()
+```
+
+## 16.10 ggthemes
+
+```{r, eval=FALSE}
+# install.packages("ggthemes")
+library(ggthemes)
+
+# List all available ggthemes
+ls("package:ggthemes")[grepl("theme_", ls("package:ggthemes"))]
+
+# Apply a ggtheme
+p + theme_wsj()     # Wall Street Journal style
+q + theme_stata()   # Stata style
+```
+
+## 16.11 Colors — RColorBrewer and paletteer
+
+```{r, eval=FALSE}
+library(RColorBrewer)
+library(paletteer)
+
+# View a color palette (qualitative = for categorical, sequential = for ordered)
+display.brewer.pal(8, "Accent")   # shows the palette with 8 colors
+
+# Apply a brewer palette
+# scale_fill_brewer()   = for fill aesthetic (bars, boxes)
+# scale_colour_brewer() = for color aesthetic (points, lines)
+
+p + scale_fill_brewer(palette = "Accent") +
+  theme(legend.position = "bottom")
+
+q + theme_classic() + scale_colour_brewer(palette = "Accent")
+
+# paletteer — access hundreds of palettes
+colors <- paletteer::palettes_d_names   # browse available palettes
+
+my_palette <- paletteer_d("ggsci::uniform_startrek")
+my_palette
+
+# Preview it as a barplot
+barplot(rep(1, 7), axes = FALSE, col = my_palette)
+
+# Apply paletteer palette using scale_fill_manual()
+p + scale_fill_manual(values = my_palette)
+
+# Custom hex code colors
+library(scales)
+my_cols <- c("#66CDAA", "#FFCD00FF")
+show_col(my_cols)   # preview in the plot panel
+
+p + scale_fill_manual(values = my_cols)
+q + scale_colour_manual(values = my_cols)
+```
+
+## 16.12 Faceting — Multi-Panel Plots
+
+```{r, eval=FALSE}
+# facet_wrap() — ribbon of panels by one variable
+# nrow controls how many rows of panels
+homerange %>%
+  ggplot(aes(x = taxon, y = log10_mass, fill = thermoregulation)) +
+  geom_boxplot() +
+  facet_wrap(~ trophic_guild,
+             nrow       = 2,
+             labeller   = label_both) +           # labels include variable name
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        legend.position = "none",
+        strip.text = element_text(size = 12, face = "bold"))
+
+# facet_wrap() with density — compare distributions
+homerange %>%
+  ggplot(aes(x = log10_mass)) +
+  geom_density(fill = "steelblue", alpha = 0.3) +
+  facet_wrap(~ thermoregulation, ncol = 2)
+
+# facet_grid() — rows ~ columns layout
+# Use . to indicate no variable for that axis
+homerange %>%
+  ggplot(aes(x = taxon, y = log10_mass, fill = thermoregulation)) +
+  geom_boxplot() +
+  facet_grid(. ~ thermoregulation, labeller = label_both) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        legend.position = "none")
+
+# facet_grid() with two variables (rows ~ columns)
+homerange %>%
+  ggplot(aes(x = taxon, y = log10_mass, fill = thermoregulation)) +
+  geom_boxplot() +
+  facet_grid(trophic_guild ~ thermoregulation, labeller = label_both) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        legend.position = "none",
+        strip.text = element_text(size = 8, face = "bold"))
+```
+
+## 16.13 Pipe Directly into ggplot
+
+```{r, eval=FALSE}
+# You can pipe a data frame directly into ggplot without specifying data=
+# The piped object becomes the data argument automatically
+
+homerange %>%
+  select(class, log10_hra) %>%
+  filter(class == "mammalia" | class == "aves") %>%
+  ggplot(aes(x = class, y = log10_hra)) +
+  geom_boxplot() +
+  labs(title = "Homerange Size of Birds vs Mammals")
+
+# Use geom_col() after computing a summary
+sharks %>%
+  group_by(county) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = reorder(county, n), y = n)) +
+  geom_col(fill = "#0099f9", alpha = 0.8) +
+  labs(title = "Shark Incidents by County (1950-2022)",
+       x     = NULL,
+       y     = "n") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        plot.title  = element_text(size = 14, face = "bold")) +
+  geom_text(aes(label = n), vjust = -0.2, size = 3, color = "black")  # add data labels
+```
+
+---
+
+# 17. Mapping — `ggmap` and `leaflet`
+
+## 17.1 Static Maps with `ggmap`
+
+```{r, eval=FALSE}
+library(ggmap)
+
+# Register your Stadia Maps API key (free at stadiamaps.com)
+register_stadiamaps("YOUR API KEY HERE", write = FALSE)
+
+# Step 1: get the range of your coordinate data
+spiders %>%
+  select(latitude, longitude) %>%
+  summary()
+
+# Step 2: create the bounding box
+# f = 0.03 adds 3% padding on all sides
+lat  <- c(34.67, 41.80)
+long <- c(-124.1, -115.5)
+bbox <- make_bbox(long, lat, f = 0.03)
+
+# Step 3: download the base map tile
+# maptype options: "stamen_terrain", "stamen_toner", "stamen_watercolor", etc.
+map1 <- get_stadiamap(bbox, maptype = "stamen_terrain", zoom = 7)
+
+# Step 4: display the base map
+ggmap(map1)
+
+# Step 5: add data points on top of the map
+ggmap(map1) +
+  geom_point(data    = spiders,
+             aes(longitude, latitude),
+             size    = 1,
+             color   = "red",
+             alpha   = 0.8) +
+  labs(x     = "Longitude",
+       y     = "Latitude",
+       title = "CA Usofila Records")
+```
+
+## 17.2 Interactive Maps with `leaflet`
+
+```{r, eval=FALSE}
+library(leaflet)
+
+# Get min/max coordinates from data
+spiders %>%
+  summarize(lon_min = min(longitude, na.rm = T),
+            lon_max = max(longitude, na.rm = T),
+            lat_min = min(latitude,  na.rm = T),
+            lat_max = max(latitude,  na.rm = T))
+
+# Store bounding box values
+lon_min <- -124.13
+lon_max <- -115.49
+lat_min <- 34.67
+lat_max <- 41.8
+
+# Build interactive map with Stadia Maps tiles
+leaflet(spiders) %>%
+  addProviderTiles(providers$Stadia.StamenTerrain) %>%
+  addCircleMarkers(
+    lng         = ~longitude,    # ~ means "use this column"
+    lat         = ~latitude,
+    radius      = 2,
+    stroke      = FALSE,
+    fillOpacity = 0.7
+  ) %>%
+  addScaleBar(position = "bottomleft") %>%
+  fitBounds(lng1 = lon_min, lat1 = lat_min,
+            lng2 = lon_max, lat2 = lat_max)
+
+# Build interactive map with OpenStreetMap tiles (default, no API key needed)
+leaflet(spiders) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    lng         = ~longitude,
+    lat         = ~latitude,
+    radius      = 2,
+    stroke      = FALSE,
+    fillOpacity = 0.7
+  ) %>%
+  addScaleBar(position = "bottomleft") %>%
+  fitBounds(lng1 = lon_min, lat1 = lat_min,
+            lng2 = lon_max, lat2 = lat_max)
+
+# Custom marker color
+leaflet(sharks_fatal) %>%
+  addProviderTiles(providers$Stadia.StamenTerrain) %>%
+  addCircleMarkers(
+    lng         = ~longitude,
+    lat         = ~latitude,
+    radius      = 2,
+    stroke      = FALSE,
+    fillColor   = "red",         # custom fill color
+    fillOpacity = 1
+  ) %>%
+  addScaleBar(position = "bottomleft") %>%
+  fitBounds(lng1 = lon_min, lat1 = lat_min,
+            lng2 = lon_max, lat2 = lat_max)
+```
+
+---
+
+# 18. Shiny Apps
+
+## 18.1 Basic Shiny Skeleton
+
+```{r, eval=FALSE}
+library(shiny)
+
+# Minimum skeleton — type "shinyapp" + Shift + Tab in RStudio for snippet
+ui <- fluidPage(
+  # user interface elements go here
+)
+
+server <- function(input, output, session) {
+  # reactive computations and outputs go here
+}
+
+shinyApp(ui, server)
+```
+
+## 18.2 selectInput() — Drop-Down Menu
+
+```{r, eval=FALSE}
+library(shiny)
+
+# Single selectInput for x variable
+ui <- fluidPage(
+  selectInput("x",                           # id used in server to access this input
+              "Select X Variable",           # label shown to user
+              choices  = c("bill_length_mm",
+                           "bill_depth_mm",
+                           "flipper_length_mm",
+                           "body_mass_g"),
+              selected = "bill_length_mm")   # default selection
+)
+
+server <- function(input, output, session) { }
+shinyApp(ui, server)
+```
+
+## 18.3 Complete Scatter Plot App (selectInput + renderPlot)
+
+```{r, eval=FALSE}
+library(shiny)
+library(tidyverse)
+library(palmerpenguins)
+
+ui <- fluidPage(
+  selectInput("x",
+              "Select X Variable",
+              choices  = c("bill_length_mm", "bill_depth_mm",
+                           "flipper_length_mm", "body_mass_g"),
+              selected = "bill_length_mm"),
+  selectInput("y",
+              "Select Y Variable",
+              choices  = c("bill_length_mm", "bill_depth_mm",
+                           "flipper_length_mm", "body_mass_g"),
+              selected = "bill_depth_mm"),
+  checkboxInput("show_lm",
+                "Show best-fit line (lm)",
+                value = FALSE),
+  plotOutput("plot", width = "500px", height = "400px")
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    ggplot(penguins,
+           aes(x = .data[[input$x]],   # .data[[]] accesses column by string name
+               y = .data[[input$y]])) +
+      geom_point(na.rm = T) +
+      if (input$show_lm)
+        geom_smooth(method = "lm", se = F, na.rm = T)
+    else
+      NULL
+  })
+}
+
+shinyApp(ui, server)
+```
+
+## 18.4 radioButtons() Input
+
+```{r, eval=FALSE}
+library(shiny)
+
+ui <- fluidPage(
+  radioButtons("x",
+               "Select Fill Variable",
+               choices  = c("trophic_guild", "thermoregulation"),
+               selected = "trophic_guild"),
+  plotOutput("plot")
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    ggplot(data = homerange,
+           aes_string(x = "locomotion", fill = input$x)) +
+      geom_bar(position = "dodge", alpha = 0.8, color = "black") +
+      labs(x = NULL, y = NULL, fill = "Fill Variable")
+  })
+}
+
+shinyApp(ui, server)
+```
+
+## 18.5 shinythemes
+
+```{r, eval=FALSE}
+library(shinythemes)
+
+# Add theme = shinythemes::shinytheme("themename") inside fluidPage()
+# Available themes: "cyborg", "cerulean", "flatly", "darkly", etc.
+ui <- fluidPage(
+  theme = shinythemes::shinytheme("cyborg"),
+  selectInput("y", "Select Sleep Variable",
+              choices  = c("sleep_total", "sleep_rem", "sleep_cycle", "awake"),
+              selected = "sleep_total"),
+  plotOutput("plot", width = "600px", height = "500px")
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    msleep %>%
+      filter(vore != "NA") %>%
+      ggplot(aes(x     = vore,
+                 y     = .data[[input$y]],
+                 fill  = vore)) +
+      geom_boxplot(alpha = 0.75) +
+      labs(title = "Sleep Variables by Vore Type",
+           x     = "Vore",
+           fill  = "Vore Type") +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+## 18.6 shinydashboard
+
+```{r, eval=FALSE}
+library(shiny)
+library(shinydashboard)
+library(tidyverse)
+
+# shinydashboard replaces fluidPage() with dashboardPage()
+# Minimum structure: header + sidebar + body
+
+# Skeleton dashboard
+ui <- dashboardPage(
+  dashboardHeader(title = "My Dashboard"),
+  dashboardSidebar(disable = T),   # disable = T hides the sidebar
+  dashboardBody()
+)
+server <- function(input, output) { }
+shinyApp(ui, server)
+
+# ---- Full example with sidebar inputs ----
+ui <- dashboardPage(
+  dashboardHeader(title = "Distribution of Gestation Length by Order"),
+  dashboardSidebar(
+    selectInput("x",
+                "Select Order",
+                choices  = sort(unique(gestation$order)),   # sort() for alphabetical
+                selected = "Afrosoricida"),
+    selectInput("y",
+                "Select Variable",
+                choices  = c("bodymass", "longevity", "gestationlength"),
+                selected = "gestationlength")
+  ),
+  dashboardBody(
+    plotOutput("plot", width = "500px", height = "400px")
+  )
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    gestation %>%
+      filter(input$x == .data[["order"]]) %>%
+      ggplot(aes(.data[[input$y]])) +
+      geom_density(fill  = "steelblue",
+                   color = "black",
+                   alpha = 0.6) +
+      theme_light()
+  })
+}
+
+shinyApp(ui, server)
+
+# ---- Wolf pack example ----
+ui <- dashboardPage(
+  dashboardHeader(title = "Sex Composition by Wolf Population"),
+  dashboardSidebar(disable = T),
+  dashboardBody(
+    selectInput("x",
+                "Select Population",
+                choices  = sort(unique(wolves$pop)),
+                selected = "AK.PEN"),
+    plotOutput("plot", width = "500px", height = "400px")
+  )
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    wolves %>%
+      filter(pop == input$x) %>%
+      ggplot(aes(x = sex, fill = sex)) +
+      geom_bar(alpha = 0.8, color = "black") +
+      labs(x = "Sex", y = NULL) +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+---
+
+# 19. Common Utility Functions & Patterns
+
+## 19.1 Useful Standalone Functions
+
+```{r, eval=FALSE}
+# Round to n significant digits
+round(pi / 2, 4)
+
+# Base R histogram (quick check)
+hist(life_history_no_nas$max_life)
+
+# Store a plot as an object (then add layers or themes later)
+p <- homerange %>%
+  ggplot(aes(x = log10_mass, y = log10_hra))
+
+p + geom_point()   # now add a geom
+p + geom_jitter(size = 3)
+
+# str_remove() from stringr — remove pattern from string
+heartrate2 %>%
+  mutate(patient = str_remove(patient, "_"))
+
+# str_remove() on time strings (shark data)
+sharks %>%
+  mutate(time = str_remove(time, ":"))
+
+# convert as_factor() — turns a column into a factor (preserving order/type)
+sharks %>%
+  ggplot(aes(x = as_factor(month), y = total)) +
+  geom_col()
+```
+
+## 19.2 Exploratory Analysis Workflow
+
+```{r, eval=FALSE}
+# Recommended steps when you first load data:
+data <- read_csv("file.csv") %>% clean_names()
+
+dim(data)       # rows x columns
+names(data)     # column names
+glimpse(data)   # structure, types, preview
+summary(data)   # summary stats, NA counts
+
+# Check for NAs
+data %>%
+  summarize(across(everything(), ~ sum(is.na(.))))
+
+# Or with naniar
+miss_var_summary(data)
+
+# Check factor levels after converting
+data$col <- as.factor(data$col)
+levels(data$col)
+
+# Check for duplicate rows
+data %>%
+  count(col1, col2) %>%
+  filter(n > 1)
+```
+
+## 19.3 Advanced Gapminder Analysis Patterns
+
+```{r, eval=FALSE}
+# Population growth between two years using pivot_wider
+pop_growth_top5 <- gapminder %>%
+  filter(year %in% c(1925, 2025)) %>%
+  select(country, year, pop) %>%
+  pivot_wider(names_from  = year,
+              values_from = pop,
+              names_prefix = "year_") %>%
+  mutate(pop_growth     = year_2025 - year_1925,
+         abs_pop_growth = abs(pop_growth)) %>%
+  arrange(desc(abs_pop_growth)) %>%
+  slice_head(n = 5)
+
+# Global trends over time
+global_yearly <- gapminder %>%
+  group_by(year) %>%
+  summarize(
+    global_population    = sum(pop, na.rm = TRUE),
+    weighted_mean_lex    = weighted.mean(lex, pop, na.rm = TRUE),  # population-weighted
+    median_gdp           = median(gdp, na.rm = TRUE),
+    .groups              = "drop"
+  )
+
+# Correlation between two variables by year
+correlation_by_year <- gapminder %>%
+  filter(gdp > 0) %>%
+  group_by(year) %>%
+  summarize(
+    cor_log10gdp_lex = cor(log10(gdp), lex, use = "complete.obs"),
+    .groups          = "drop"
+  )
+
+# Outlier detection using the IQR rule
+outliers_2025 <- gapminder %>%
+  filter(year == 2025) %>%
+  select(country, pop, gdp, lex) %>%
+  pivot_longer(cols = c(pop, gdp, lex), names_to = "variable", values_to = "value") %>%
+  group_by(variable) %>%
+  mutate(
+    q1         = quantile(value, 0.25, na.rm = TRUE),
+    q3         = quantile(value, 0.75, na.rm = TRUE),
+    iqr        = q3 - q1,
+    lower      = q1 - 1.5 * iqr,
+    upper      = q3 + 1.5 * iqr,
+    is_outlier = value < lower | value > upper
+  ) %>%
+  ungroup() %>%
+  filter(is_outlier) %>%
+  arrange(variable, desc(value)) %>%
+  select(variable, country, value, lower, upper)
+```
+
+---
+
+# 20. Package Quick Reference
+
+```{r, eval=FALSE}
+# ---- Load all commonly used packages ----
+library("tidyverse")        # includes dplyr, ggplot2, tidyr, readr, stringr, etc.
+library("janitor")          # clean_names(), tabyl()
+library("naniar")           # miss_var_summary(), gg_miss_var(), replace_with_na()
+library("palmerpenguins")   # penguins dataset
+library("lubridate")        # date/time manipulation
+library("RColorBrewer")     # color palettes for ggplot
+library("paletteer")        # huge collection of palettes
+library("ggthemes")         # extra ggplot themes
+library("shiny")            # interactive web apps
+library("shinythemes")      # themes for shiny
+library("shinydashboard")   # dashboard UI for shiny
+library("ggmap")            # static maps from Stadia/Google
+library("leaflet")          # interactive maps
+library("scales")           # show_col(), percent formatting
+```
+
+---
+
+*This cheat sheet was compiled from a full semester of BIS 15L / Data Science in R coursework. All code blocks are knit-ready and can be run directly in RMarkdown after loading the appropriate packages and data files.*
